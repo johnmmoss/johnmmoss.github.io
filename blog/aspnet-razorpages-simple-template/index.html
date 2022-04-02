@@ -1,0 +1,118 @@
+<!DOCTYPE html><html><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="ie=edge"/><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/><meta name="generator" content="Gatsby 4.10.3"/><style data-href="/styles.3f33421918afaf4a4268.css" data-identity="gatsby-global-css">.layout-module--container--eLBMS{font-family:sans-serif;margin:auto;max-width:800px}.layout-module--heading--8VjLO{color:maroon;font-size:1.6rem;margin:25px 3px}.layout-module--nav-links--EROwB{background-color:#ffebcd;border-radius:10px;display:flex;list-style:none;margin:12px 0;padding:30px 10px}.layout-module--nav-link-item--pfCo2{padding-right:2rem}.layout-module--nav-link-text--ac2nV{color:#000;color:maroon;font-weight:700}.layout-module--site-title--5N6mf{color:gray;font-size:1.4rem;font-weight:700;margin:1.5rem 0}pre{word-wrap:normal;overflow:auto;white-space:pre}footer{padding:10px;text-align:center}</style><style>.gatsby-image-wrapper{position:relative;overflow:hidden}.gatsby-image-wrapper picture.object-fit-polyfill{position:static!important}.gatsby-image-wrapper img{bottom:0;height:100%;left:0;margin:0;max-width:none;padding:0;position:absolute;right:0;top:0;width:100%;object-fit:cover}.gatsby-image-wrapper [data-main-image]{opacity:0;transform:translateZ(0);transition:opacity .25s linear;will-change:opacity}.gatsby-image-wrapper-constrained{display:inline-block;vertical-align:top}</style><noscript><style>.gatsby-image-wrapper noscript [data-main-image]{opacity:1!important}.gatsby-image-wrapper [data-placeholder-image]{opacity:0!important}</style></noscript><script type="module">const e="undefined"!=typeof HTMLImageElement&&"loading"in HTMLImageElement.prototype;e&&document.body.addEventListener("load",(function(e){if(void 0===e.target.dataset.mainImage)return;if(void 0===e.target.dataset.gatsbyImageSsr)return;const t=e.target;let a=null,n=t;for(;null===a&&n;)void 0!==n.parentNode.dataset.gatsbyImageWrapper&&(a=n.parentNode),n=n.parentNode;const o=a.querySelector("[data-placeholder-image]"),r=new Image;r.src=t.currentSrc,r.decode().catch((()=>{})).then((()=>{t.style.opacity=1,o&&(o.style.opacity=0,o.style.transition="opacity 500ms linear")}))}),!0);</script><link as="script" rel="preload" href="/webpack-runtime-0c2617bdcefff67311f8.js"/><link as="script" rel="preload" href="/framework-f24c3fbb71f117e223ab.js"/><link as="script" rel="preload" href="/app-d93e2701d6ecd8d2c363.js"/><link as="script" rel="preload" href="/component---src-pages-blog-mdx-slug-js-03812f15af53db1b7206.js"/><link as="fetch" rel="preload" href="/page-data/blog/aspnet-razorpages-simple-template/page-data.json" crossorigin="anonymous"/><link as="fetch" rel="preload" href="/page-data/sq/d/3159585216.json" crossorigin="anonymous"/><link as="fetch" rel="preload" href="/page-data/app-data.json" crossorigin="anonymous"/></head><body><div id="___gatsby"><div style="outline:none" tabindex="-1" id="gatsby-focus-wrapper"><div class="layout-module--container--eLBMS"><title>A simple ASP.NET Razor Pages starter template<!-- --> | <!-- -->Tech Notes - johnmmoss</title><header class="layout-module--site-title--5N6mf">Tech Notes - johnmmoss</header><nav><ul class="layout-module--nav-links--EROwB"><li class="layout-module--nav-link-item--pfCo2"><a class="layout-module--nav-link-text--ac2nV" href="/">Home</a></li><li class="layout-module--nav-link-item--pfCo2"><a class="layout-module--nav-link-text--ac2nV" href="/about">About</a></li><li class="layout-module--nav-link-item--pfCo2"><a class="layout-module--nav-link-text--ac2nV" href="/blog">Blog</a></li></ul></nav><main><h1 class="layout-module--heading--8VjLO">A simple ASP.NET Razor Pages starter template</h1><p>March 1, 2022</p><p><strong>Note</strong> this tutorial was written using .net 5.0 and Visual Studio 2019 (16.10.0)</p><p>Using the web template creates an empty ASP.NET Core web project:</p><pre><code class="language-powershell">dotnet new web -n AspnetBootstrapWeb -f net5.0
+</code></pre><p>The <code>-f</code> or framework switch is only required if you have multiple frameworks installed and don&#x27;t want to use the latest.</p><p>The .net 5.0 web template creates a very basic ASP.NET web project:</p><p><span class="gatsby-resp-image-wrapper" style="position:relative;display:block;margin-left:auto;margin-right:auto;max-width:297px">
+      <a class="gatsby-resp-image-link" href="/static/2ae3fe16e4a205de0efac68041008ae1/9edad/aspnet-razorpages-simpletemplate-slnscreenshot.png" style="display:block" target="_blank" rel="noopener">
+    <span class="gatsby-resp-image-background-image" style="padding-bottom:62.62626262626263%;position:relative;bottom:0;left:0;background-image:url(&#x27;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAANCAYAAACpUE5eAAAACXBIWXMAAAsTAAALEwEAmpwYAAACPklEQVQ4y42SS2sTURiG8w+6FE2b2LnlOplkJpdJc5tLZiZJL1hKF4KLonQjCBVJ2rQUf4DQiDs3FbHoxrSN+v8eyYEUpGq7eM9ZnHOe733P98WaR1Myoyny6IrM+Jr46+88fjNFO7yieDojfXSNOrpEGU7JnszQT3+RHF4jH86EVkcz0sc/0cY/WHp1Scx8NkE/+IR9/JW14TnVwwvq4wvckwua48/Yw3MaR1/w337DOvhIen/C8t4ZyecTEntnpPbfY7z8gPxiwtLTd8SMrIrhRLSCPtuDkKe7OzwZRGz1I6Kuy0YvZHd7k52tAVXTIPHwAWpyGTkRR0nEkVbirC4/Ql6JoyXjxBRFY3VVIpvLUevUKVdsOo5Pt9vF9wM8P8D3fbGbpomsaKhaGlVL3ZKipohpWgrTtMjm8nRcD9cLCIMAz/VxXJ8gCLBMi/m9uVRVE1L+IQG0rAplq8T2oEO77RAGIb2oj+O46HpBgCRJRpYVIQFUVKFFgYUE0DCKFHSdjm2ImN1uiO95AlgyTYrFEvm8LuC5bO6voBvg/HBR1SiaBGGEbddx2g6NRpv19XWiqE8vjET8Wq32f6CIXC5TqVTxPJ9Ws0XUG9DrDwjDCLfj4Hu+cDZv3r0il0omuUIec82i3XIIghDP82i32lSrNVKp9B+P7nRYKVdJ6xmKa0WazQ6bG1vCVd22yWQyN67uggngfCkUDFKZNLlSnlqtLmI3Gk3h/L7ObjVF7JKCJEnirxZjMh/8+8LmwN/9kq1HRjUlmgAAAABJRU5ErkJggg==&#x27;);background-size:cover;display:block"></span>
+  <img class="gatsby-resp-image-image" alt="image-20210629204712538" title="image-20210629204712538" src="/static/2ae3fe16e4a205de0efac68041008ae1/9edad/aspnet-razorpages-simpletemplate-slnscreenshot.png" srcSet="/static/2ae3fe16e4a205de0efac68041008ae1/9edad/aspnet-razorpages-simpletemplate-slnscreenshot.png 297w" sizes="(max-width: 297px) 100vw, 297px" style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0" loading="lazy" decoding="async"/>
+  </a>
+    </span></p><p>The <code>Startup.cs</code> class for this template is super simple:</p><pre><code class="language-c#">public class Startup
+{   
+    public void ConfigureServices(IServiceCollection services)
+    {
+    }
+
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+        }
+
+        app.UseRouting();
+
+        app.UseEndpoints(endpoints =&gt;
+        {
+            endpoints.MapGet(&quot;/&quot;, async context =&gt;
+            {
+                await context.Response.WriteAsync(&quot;Hello World!&quot;);
+            });
+        });
+    }
+}
+</code></pre><h3>Enabling RazorPages and Web Api</h3><p>We need to update the code to add the relevant services and also configure them to work. We do this by updating the <code>Startup.cs</code> to include the <code>RazorPages</code> and <code>Controllers</code> services respectively:</p><ul><li>Add the <strong>services</strong></li><li>Add the <strong>endpoints</strong></li></ul><pre><code class="language-c#">public void ConfigureServices(IServiceCollection services)
+{
+    services.AddRazorPages();
+    services.AddControllers();
+}
+
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    if (env.IsDevelopment())
+    {
+        app.UseDeveloperExceptionPage();
+    }
+
+    app.UseRouting();
+
+    app.UseEndpoints(endpoints =&gt;
+    {
+        endpoints.MapRazorPages();
+        endpoints.MapControllers();
+    });
+}
+</code></pre><h3>Add a Page</h3><p>Next we add a razor page using Visual Studio, because it autogenerates the <code>.cs</code> file to go with it. This page by default should be added in a <code>Pages</code> directory:</p><p><span class="gatsby-resp-image-wrapper" style="position:relative;display:block;margin-left:auto;margin-right:auto;max-width:843px">
+      <a class="gatsby-resp-image-link" href="/static/87adc08546535aa244ac721cec7fcb47/4ff83/aspnet-razorpages-simpletemplate-adpagescreenshot.png" style="display:block" target="_blank" rel="noopener">
+    <span class="gatsby-resp-image-background-image" style="padding-bottom:37%;position:relative;bottom:0;left:0;background-image:url(&#x27;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAHCAYAAAAIy204AAAACXBIWXMAAAsTAAALEwEAmpwYAAABWklEQVQoz42Pu3LTQABF9R+xA+hpSdZrV7taWY+VjJlgBBR0tBQQnGFIl88/jEXFTGZCcYrbnLnHkVLTdSNt01PKlqYdUK2lFjVfL0/sv/zEv/tGYT9TmAExnCgPE6I/UnUz+2Yk0ZZd3eFlEkeplml+xzy/5XS6ox8stTIIoXj8/UhjNEEYE8QZUVGRSkVcSvZSk4qaMK/wM4Gb5Gy9ECeJM3p7ZFkWzu/PSFkThRGu6/L9/kIzHUlkSTMM6K5HdR31wVComqJWlEpTaUWlNcIYnDDcIcqccRgpipIo2hEEITc3G35chXYiFhmttSsHO9GMPbJt/8VcMTh5XmHHkQ/nhXk+oZWhKARRmHB5+IUe7Jqy9YKVjRus+9Z/Hmef5ijTsHz8RGsOXB/Hccqb1y73lweaYeJVEOHFKe4ueRFnTQxDkiTF83x8P1j3ZrP9mzxM3PrRf8muwj83Sd+cKWDGgQAAAABJRU5ErkJggg==&#x27;);background-size:cover;display:block"></span>
+  <img class="gatsby-resp-image-image" alt="image-20210629205640130" title="image-20210629205640130" src="/static/87adc08546535aa244ac721cec7fcb47/4ff83/aspnet-razorpages-simpletemplate-adpagescreenshot.png" srcSet="/static/87adc08546535aa244ac721cec7fcb47/5a46d/aspnet-razorpages-simpletemplate-adpagescreenshot.png 300w,/static/87adc08546535aa244ac721cec7fcb47/0a47e/aspnet-razorpages-simpletemplate-adpagescreenshot.png 600w,/static/87adc08546535aa244ac721cec7fcb47/4ff83/aspnet-razorpages-simpletemplate-adpagescreenshot.png 843w" sizes="(max-width: 843px) 100vw, 843px" style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0" loading="lazy" decoding="async"/>
+  </a>
+    </span></p><p>Now we we hit F5 we see the simple page rendered as the homepage:</p><p><span class="gatsby-resp-image-wrapper" style="position:relative;display:block;margin-left:auto;margin-right:auto;max-width:564px">
+      <a class="gatsby-resp-image-link" href="/static/a111eb7a135121c442ca6859cd7c0816/ba4d9/aspnet-razorpages-simpletemplate-browserscreenshot.png" style="display:block" target="_blank" rel="noopener">
+    <span class="gatsby-resp-image-background-image" style="padding-bottom:77.33333333333333%;position:relative;bottom:0;left:0;background-image:url(&#x27;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAPCAYAAADkmO9VAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA/klEQVQ4y+2SW0vDQBCF8/9/mNQXb9jaNL0Xqyazu9mkm91Ukk8SqGh9keiDDx44DDMDH4dhotV2jzaWLM3IMuElzTAmpz4eCaHG5AWTeMnDbM1ssSVZ7pjEKy4ur5gmG+L5lvF0wTRZ9zWyRUknX3mcc9iiQGtDN++qKM3jU4roHNEWZSypaDa7PWVhEVH9/vlFcXCeSETw3vdpQgiI1iilUdr0aTMRclsQ6vrdPgQOrqJ5DVTugMktZemAluj25prRaEQyXzC+vyNOEr6r9rxvW6KqqvqmaZrep8VQR93dTpCPsKHgT8Bz2BB9SfhT/T6we5m/DTy9zT9wMPANtuiaZbqJI7IAAAAASUVORK5CYII=&#x27;);background-size:cover;display:block"></span>
+  <img class="gatsby-resp-image-image" alt="image-20210629205751181" title="image-20210629205751181" src="/static/a111eb7a135121c442ca6859cd7c0816/ba4d9/aspnet-razorpages-simpletemplate-browserscreenshot.png" srcSet="/static/a111eb7a135121c442ca6859cd7c0816/5a46d/aspnet-razorpages-simpletemplate-browserscreenshot.png 300w,/static/a111eb7a135121c442ca6859cd7c0816/ba4d9/aspnet-razorpages-simpletemplate-browserscreenshot.png 564w" sizes="(max-width: 564px) 100vw, 564px" style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0" loading="lazy" decoding="async"/>
+  </a>
+    </span></p><h3>Adding in Bootstrap</h3><p>Keeping things simple we don&#x27;t worry about layout pages etc but just copy in the full html from the <a href="https://getbootstrap.com/docs/5.0/getting-started/introduction/">bootstrap starter template</a>. This template is fine for simple practice coding.</p><p><strong>Note</strong> we need to convert the popper script to a Razor literal as it includes an @ symbol.</p><p>Our razor page looks like:</p><pre><code class="language-html">@page
+@model AspNetBootstrapWeb.Pages.IndexModel
+@{
+}
+&lt;!doctype html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;utf-8&quot;&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+    &lt;link href=&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css&quot; rel=&quot;stylesheet&quot; integrity=&quot;sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC&quot; crossorigin=&quot;anonymous&quot;&gt;
+    &lt;title&gt;AspNet Simple Bootstrap&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class=&quot;container&quot;&gt;
+        &lt;h1&gt;AspNet Simple Bootstrap&lt;/h1&gt;
+    
+
+        &lt;!-- Write some code :) --&gt;
+
+    &lt;/div&gt;
+    &lt;script src=&quot;@(&quot;https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js&quot;)&quot; integrity=&quot;sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p&quot; crossorigin=&quot;anonymous&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js&quot; integrity=&quot;sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF&quot; crossorigin=&quot;anonymous&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+
+</code></pre><h3>Adding an Api Controller</h3><p>Finally, we add a new Web Api Controller again using visual studio as it templates the default base class etc. If we add in the following code, then we have a get and a post that we can call from our page:</p><pre><code class="language-c#">[ApiController]
+public class ApiController : ControllerBase
+{
+    [HttpGet(&quot;/api&quot;)]
+    public async Task&lt;IActionResult&gt; Get()
+    {
+        return Ok(&quot;success&quot;);
+    }
+
+    [HttpPost(&quot;/api&quot;)]
+    public async Task&lt;IActionResult&gt; Post([FromQuery]int id, [FromBody]ApiRequest request)
+    {
+        if (request == null)
+            return BadRequest();
+
+        return Ok($&quot;[{id}] Hello {request.Name}, you are {request.Age} years old!&quot;);
+    }
+
+    public class ApiRequest
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
+    }
+}
+</code></pre><p>So, if we make a request using for example postman, we will get back the response:</p><pre><code class="language-http">POST /api?id=5 HTTP/1.1
+Host: localhost:5001
+Content-Type: application/json
+Content-Length: 33
+
+{ &quot;Name&quot; : &quot;John&quot;, &quot;Age&quot; : &quot;27&quot; }
+</code></pre><p>We get back a response:</p><pre><code>[5] Hello John, you are 27 years old!
+</code></pre><p>Nice!</p><p>Next we write a bootstrap form and get it to post back the details to the Web Api!</p><a href="/blog">back</a></main><footer>Made with <a href="https://www.gatsbyjs.com/">Gatsby</a> and <span role="img" aria-label="Heart emoji">💗</span></footer></div></div><div id="gatsby-announcer" style="position:absolute;top:0;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border:0" aria-live="assertive" aria-atomic="true"></div></div><script id="gatsby-script-loader">/*<![CDATA[*/window.pagePath="/blog/aspnet-razorpages-simple-template/";window.___webpackCompilationHash="a1e819e0b1c501bd7879";/*]]>*/</script><script id="gatsby-chunk-mapping">/*<![CDATA[*/window.___chunkMapping={"polyfill":["/polyfill-db109019bff945921aa3.js"],"app":["/app-d93e2701d6ecd8d2c363.js"],"component---src-pages-404-js":["/component---src-pages-404-js-f982e21b29e5e7bc41b1.js"],"component---src-pages-about-js":["/component---src-pages-about-js-d2d51fe9811663bc1bbc.js"],"component---src-pages-blog-index-js":["/component---src-pages-blog-index-js-55b40fca4cedef26683b.js"],"component---src-pages-blog-mdx-slug-js":["/component---src-pages-blog-mdx-slug-js-03812f15af53db1b7206.js"],"component---src-pages-index-js":["/component---src-pages-index-js-08eccf748c1113b6bb14.js"]};/*]]>*/</script><script src="/polyfill-db109019bff945921aa3.js" nomodule=""></script><script src="/component---src-pages-blog-mdx-slug-js-03812f15af53db1b7206.js" async=""></script><script src="/app-d93e2701d6ecd8d2c363.js" async=""></script><script src="/framework-f24c3fbb71f117e223ab.js" async=""></script><script src="/webpack-runtime-0c2617bdcefff67311f8.js" async=""></script></body></html>
