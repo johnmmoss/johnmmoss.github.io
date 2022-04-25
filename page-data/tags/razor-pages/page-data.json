@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-tags-js",
+    "path": "/tags/razor-pages/",
+    "result": {"data":{"allMdx":{"totalCount":1,"edges":[{"node":{"frontmatter":{"date":"March 1, 2022","title":"A simple ASP.NET Razor Pages starter template","tags":["ASP.NET Core","C#","Razor Pages"]},"id":"8369e0ff-a186-55e4-a529-5d5c62c2a6ae","slug":"aspnet-razorpages-simple-template/","excerpt":"The default ASP.NET web templates create applications with quite a lot of bloat.\nSometimes we just want a simpler application with just the features installed that\nwe are intressted in. This article describes how to create a barebones Razor pages\napp starting with the empty web app template and…"}}]}},"pageContext":{"tag":"Razor Pages"}},
+    "staticQueryHashes": ["3159585216"]}
