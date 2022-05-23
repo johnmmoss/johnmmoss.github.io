@@ -1,5 +1,5 @@
 {
     "componentChunkName": "component---src-pages-index-js",
     "path": "/",
-    "result": {"pageContext":{}},
+    "result": {"data":{"allMdx":{"nodes":[{"frontmatter":{"date":"April 2, 2022","title":"Model Binding in ASP.NET Razor Pages","tags":["ASP.NET Core","C#","Web API"]},"id":"570cc1c4-8305-5f38-a921-7867eecabee1","slug":"aspnet-razorpages-model-binding","excerpt":"The ASP.NET Razor Pages framework automatically binds Http request parameters to our controller paramters.\nIn this post we look at the basics of Http form posts before understanding how we can bind…"},{"frontmatter":{"date":"April 2, 2022","title":"Responsive Layout with Bootstrap Grid","tags":["Bootstrap"]},"id":"fefe7fd9-d160-53f6-9d9b-98fbb4f65c10","slug":"bootstrap-grid-responsive-layout","excerpt":"I have a basic understanding of Bootstrap's grid system, but struggle with laying out content and responsive content was a bit beyond me . Recently I watched Shawn Wildermuth's Pluralsight course…"},{"frontmatter":{"date":"February 23, 2022","title":"My First Post","tags":["lifestyle"]},"id":"e2232f85-5c8b-5e78-a357-8e839db9f18c","slug":"my-first-post","excerpt":"This is my first blog post! Isn't it  great ? Some of my  favorite  things are: Petting dogs Singing Eating potato-based foods My test image:"}]}},"pageContext":{}},
     "staticQueryHashes": ["3159585216"]}

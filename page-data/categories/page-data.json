@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-pages-categories-js",
+    "path": "/categories/",
+    "result": {"data":{"site":{"siteMetadata":{"title":"Tech Notes - johnmmoss"}},"allMdx":{"group":[{"fieldValue":"ASP.NET Core","totalCount":1},{"fieldValue":"Bootstrap","totalCount":1},{"fieldValue":"C#","totalCount":1},{"fieldValue":"Web API","totalCount":1},{"fieldValue":"lifestyle","totalCount":1}]}},"pageContext":{}},
+    "staticQueryHashes": ["3159585216"]}
