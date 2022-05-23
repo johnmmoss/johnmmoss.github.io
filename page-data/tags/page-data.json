@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-pages-tags-js",
-    "path": "/tags/",
-    "result": {"data":{"site":{"siteMetadata":{"title":"Tech Notes - johnmmoss"}},"allMdx":{"group":[{"fieldValue":"ASP.NET Core","totalCount":2},{"fieldValue":"C#","totalCount":2},{"fieldValue":"Razor Pages","totalCount":1},{"fieldValue":"Web API","totalCount":1},{"fieldValue":"lifestyle","totalCount":3}]}},"pageContext":{}},
-    "staticQueryHashes": ["3159585216"]}
