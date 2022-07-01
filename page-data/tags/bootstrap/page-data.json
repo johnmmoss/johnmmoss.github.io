@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-categories-js",
+    "path": "/tags/bootstrap/",
+    "result": {"data":{"allMdx":{"totalCount":1,"edges":[{"node":{"frontmatter":{"date":"February 14, 2022","title":"Responsive Layout with Bootstrap Grid","tags":["Bootstrap"]},"id":"fefe7fd9-d160-53f6-9d9b-98fbb4f65c10","slug":"bootstrap-grid-responsive-layout","excerpt":"Recently I watched Shawn Wildermuth's Pluralsight course  Creating a Responsive Layout with Bootstrap Grid  and he does a great job of explaining how bootstrap grid can be used to create responsive designs. Before looking at how to make our layouts responsive, first lets just recap the basics…"}}]}},"pageContext":{"tag":"Bootstrap"}},
+    "staticQueryHashes": ["3159585216"]}
