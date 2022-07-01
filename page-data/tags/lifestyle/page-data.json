@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-categories-js",
-    "path": "/tags/lifestyle/",
-    "result": {"data":{"allMdx":{"totalCount":1,"edges":[{"node":{"frontmatter":{"date":"February 23, 2022","title":"My First Post","tags":["lifestyle"]},"id":"e2232f85-5c8b-5e78-a357-8e839db9f18c","slug":"my-first-post","excerpt":"This is my first blog post! Isn't it  great ? Some of my  favorite  things are: Petting dogs Singing Eating potato-based foods My test image:"}}]}},"pageContext":{"tag":"lifestyle"}},
-    "staticQueryHashes": ["3159585216"]}

@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-categories-js",
-    "path": "/tags/bootstrap/",
-    "result": {"data":{"allMdx":{"totalCount":1,"edges":[{"node":{"frontmatter":{"date":"April 2, 2022","title":"Responsive Layout with Bootstrap Grid","tags":["Bootstrap"]},"id":"fefe7fd9-d160-53f6-9d9b-98fbb4f65c10","slug":"bootstrap-grid-responsive-layout","excerpt":"I have a basic understanding of Bootstrap's grid system, but struggle with laying out content and responsive content was a bit beyond me . Recently I watched Shawn Wildermuth's Pluralsight course  Creating a Responsive Layout with Bootstrap Grid  and he does a very good job of illustrating how to…"}}]}},"pageContext":{"tag":"Bootstrap"}},
-    "staticQueryHashes": ["3159585216"]}

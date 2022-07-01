@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-categories-js",
-    "path": "/tags/c/",
-    "result": {"data":{"allMdx":{"totalCount":1,"edges":[{"node":{"frontmatter":{"date":"April 2, 2022","title":"Model Binding in ASP.NET Razor Pages","tags":["ASP.NET Core","C#","Web API"]},"id":"570cc1c4-8305-5f38-a921-7867eecabee1","slug":"aspnet-razorpages-model-binding","excerpt":"The ASP.NET Razor Pages framework automatically binds Http request parameters to our controller paramters.\nIn this post we look at the basics of Http form posts before understanding how we can bind our html controls to the\nRazor model. Html Form Post A simple post request looks like so: If the above…"}}]}},"pageContext":{"tag":"C#"}},
-    "staticQueryHashes": ["3159585216"]}
