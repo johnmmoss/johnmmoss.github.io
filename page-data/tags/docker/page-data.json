@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-categories-js",
+    "path": "/tags/docker/",
+    "result": {"data":{"allMdx":{"totalCount":1,"edges":[{"node":{"frontmatter":{"date":"May 14, 2022","title":"Dockerize an ASP.NET Core Application","tags":["docker","Razor Pages","ASP.NET Core","C#",".NET6"]},"id":"b3d5c95c-2bba-54bb-9592-d63284b7dbda","slug":"docker-dockerize-aspnet-razorpages-website","excerpt":"Visual Studio provides excellent support for docker containers, but this does mean some of the complexities of the technology can get masked. In this tutorial we walk through the basics of building a docker container for a simple ASP.NET Core Web Application so that we can better understand the…"}}]}},"pageContext":{"tag":"docker"}},
+    "staticQueryHashes": ["3159585216"]}

@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-categories-js",
+    "path": "/tags/libman/",
+    "result": {"data":{"allMdx":{"totalCount":1,"edges":[{"node":{"frontmatter":{"date":"February 28, 2022","title":"ASP.NET Core Razor Pages Simple Web Template","tags":["Razor Pages","ASP.NET Core","C#",".NET6","libman"]},"id":"1a300dee-8183-5d96-9252-8421a641446c","slug":"aspnet-razorpages-simple-template","excerpt":"Visual Studio 2022 provides a template for creating an empty ASP.NET Core application. Although this template requires a bit of work to get a Razor Pages website up and running, by using the empty template we can include only the libraries and template code that we actually need.  Before we begin…"}}]}},"pageContext":{"tag":"libman"}},
+    "staticQueryHashes": ["3159585216"]}
