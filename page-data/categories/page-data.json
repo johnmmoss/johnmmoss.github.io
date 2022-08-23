@@ -1,5 +1,5 @@
 {
     "componentChunkName": "component---src-pages-categories-js",
     "path": "/categories/",
-    "result": {"data":{"site":{"siteMetadata":{"title":"Tech Notes - johnmmoss"}},"allMdx":{"group":[{"fieldValue":".NET6","totalCount":2},{"fieldValue":"ASP.NET Core","totalCount":2},{"fieldValue":"Bootstrap","totalCount":1},{"fieldValue":"C#","totalCount":2},{"fieldValue":"Keycloak","totalCount":1},{"fieldValue":"OAuth2/OIDC","totalCount":1},{"fieldValue":"Razor Pages","totalCount":2},{"fieldValue":"docker","totalCount":2},{"fieldValue":"docker-compose","totalCount":1},{"fieldValue":"libman","totalCount":1},{"fieldValue":"lifestyle","totalCount":1}]}},"pageContext":{}},
+    "result": {"data":{"site":{"siteMetadata":{"title":"Tech Notes - johnmmoss"}},"allMdx":{"group":[{"fieldValue":".NET6","totalCount":3},{"fieldValue":"ASP.NET Core","totalCount":4},{"fieldValue":"Bootstrap\"","totalCount":1},{"fieldValue":"C#","totalCount":4},{"fieldValue":"Keycloak","totalCount":1},{"fieldValue":"OAuth2/OIDC","totalCount":1},{"fieldValue":"Razor Pages","totalCount":3},{"fieldValue":"docker","totalCount":3},{"fieldValue":"docker-compose","totalCount":1},{"fieldValue":"libman","totalCount":1},{"fieldValue":"lifestyle","totalCount":1}]}},"pageContext":{}},
     "staticQueryHashes": ["3159585216"]}
