@@ -1,5 +1,0 @@
-{
-    "componentChunkName": "component---src-templates-categories-js",
-    "path": "/tags/docker-compose/",
-    "result": {"data":{"allMdx":{"totalCount":1,"edges":[{"node":{"frontmatter":{"date":"June 6, 2022","title":"Setup Keycloak OAuth2/OIDC Provider for local dev","tags":["OAuth2/OIDC","docker-compose","docker","Keycloak"]},"id":"1ed9c28f-eef0-5c9f-813d-8bb12c57d838","slug":"keycloak-setup-for-local-dev","excerpt":"Keycloak  is a full featured open source Identity and Access Management solution. Its written in Java and deployed with Docker meaning you can get up and running in minutes. It is ideal for for local development scenarios where we need a standards compliant (SAML 2.0, OAuth 2.0 or OpenID Connect…"}}]}},"pageContext":{"tag":"docker-compose"}},
-    "staticQueryHashes": ["3159585216"]}
