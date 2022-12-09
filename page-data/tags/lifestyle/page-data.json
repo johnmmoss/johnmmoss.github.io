@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-categories-js",
+    "path": "/tags/lifestyle/",
+    "result": {"data":{"allMdx":{"totalCount":1,"edges":[{"node":{"frontmatter":{"date":"January 10, 2022","title":"My First Post","tags":["lifestyle"]},"id":"e2232f85-5c8b-5e78-a357-8e839db9f18c","slug":"my-first-post","excerpt":"After years of wrestling with  blogger.com  and getting frustrated with the clunky interface and how hard it is to add new content I eventually decided to put some effort into writing a new blog. After working on a microservices platform recently, I was using a multitude of new technologies and in…"}}]}},"pageContext":{"tag":"lifestyle"}},
+    "staticQueryHashes": ["3159585216"]}

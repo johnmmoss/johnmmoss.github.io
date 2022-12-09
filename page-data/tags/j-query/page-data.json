@@ -1,0 +1,5 @@
+{
+    "componentChunkName": "component---src-templates-categories-js",
+    "path": "/tags/j-query/",
+    "result": {"data":{"allMdx":{"totalCount":1,"edges":[{"node":{"frontmatter":{"date":"December 5, 2022","title":"Displaying Data With ASP.NET Core and jQuery datatables.net","tags":["ASP.NET Core","C#","jQuery","datatables.net"]},"id":"c230ecb7-41eb-5df4-999b-9a832c8c168b","slug":"displaying-data-aspnetcore-jquery-datatablesnet","excerpt":"Software systems often have to display a lot of data and people expect functionality like pagination, searching and sorting by default. The  jQuery plugin datatables.net  transforms a basic HTML table with a few lines of code into a fully functional data grid. Its pretty awesome! A few lines of code…"}}]}},"pageContext":{"tag":"jQuery"}},
+    "staticQueryHashes": ["3159585216"]}
