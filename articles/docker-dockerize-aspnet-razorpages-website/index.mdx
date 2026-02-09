@@ -10,20 +10,20 @@ Visual Studio provides excellent support for docker containers, but this does me
 
 Docker is a containerisation technology that consists of images and containers. An image is a read-only template with instructions for creating a Docker container. A container is a runnable instance of an image. To build an image we write a Dockerfile which has a simple syntax for defining the required steps. You can learn more about docker from the official documentation:
 
-* [Docker Overview](https://docs.docker.com/get-started/overview/)
-* [Dockerfile reference](https://docs.docker.com/engine/reference/builder/)
-* [docker build](https://docs.docker.com/engine/reference/commandline/build/)
-* [docker run](https://docs.docker.com/engine/reference/commandline/run/)
+- [Docker Overview](https://docs.docker.com/get-started/overview/)
+- [Dockerfile reference](https://docs.docker.com/engine/reference/builder/)
+- [docker build](https://docs.docker.com/engine/reference/commandline/build/)
+- [docker run](https://docs.docker.com/engine/reference/commandline/run/)
 
 In order to build and run docker containers you need to install [Docker Desktop](https://docs.docker.com/desktop/).
 
 ### Creating the Application
 
-Before we create our application a quick word about the solution structure. One of the benefits of docker is  that it helps to separate the application from its infrastructure. Consequently we will create two folders in the root of our repository one for our source code and the other for the docker related files.
+Before we create our application a quick word about the solution structure. One of the benefits of docker is that it helps to separate the application from its infrastructure. Consequently we will create two folders in the root of our repository one for our source code and the other for the docker related files.
 
-At the root of our repository, create a `src` folder, for our application, and a `docker` folder, for our infrastructure. 
+At the root of our repository, create a `src` folder, for our application, and a `docker` folder, for our infrastructure.
 
-Next create a .net 6.0 website using the  ASP.NET Core Web App template called `AspNetWebDocker` in the `src` folder and add an empty file called `Dockerfile` in the `docker` folder. We will write the `Dockerfile` shortly. The directory structure should now look similar to below:
+Next create a .net 6.0 website using the ASP.NET Core Web App template called `AspNetWebDocker` in the `src` folder and add an empty file called `Dockerfile` in the `docker` folder. We will write the `Dockerfile` shortly. The directory structure should now look similar to below:
 
 ```
 C:\AspNetWebDocker
@@ -35,8 +35,6 @@ C:\AspNetWebDocker
     │
     └───AspNetWebDocker
 ```
-
-
 
 ### Building the Solution
 
@@ -51,13 +49,13 @@ dotnet .\app\AspNetWebDocker.dll
 
 If you execute these commands in the terminal, you should see something like below:
 
-![Restore/Build/Run Screenshot](../assets/images/docker-dockerize-aspnet-razorpages-website/restore-build-run-native-screenshot.png)
+![Restore/Build/Run Screenshot](./restore-build-run-native-screenshot.png)
 
 Now that we know what commands we need to run, we can write the `Dockerfile`.
 
 ### Building the Docker Image
 
-Before we can run our container we need to build an image and we create an image by building it from a `Dockerfile`. So the next step is to write a `Dockerfile`. 
+Before we can run our container we need to build an image and we create an image by building it from a `Dockerfile`. So the next step is to write a `Dockerfile`.
 
 A `Dockerfile` is a series of commands that the docker build command uses to create an image. Copy the following text into the `docker/Dockerfile` we created above:
 
@@ -67,36 +65,35 @@ ENV ASPNETCORE_URLS=http://+:80
 WORKDIR /app
 COPY ./src .
 RUN dotnet restore
-RUN dotnet publish -c Release -o out 
+RUN dotnet publish -c Release -o out
 WORKDIR /app/out
 ENTRYPOINT ["dotnet", "AspNetWebDocker.dll"]
 ```
 
 For a complete overview of all `Dockerfile` commands you can see the docker documentation: [Dockerfile reference](https://docs.docker.com/engine/reference/builder/). A brief description of each step:
 
-| Keyword    | Meaning                                                      |
-| ---------- | ------------------------------------------------------------ |
-| [FROM](https://docs.docker.com/engine/reference/builder/#from) | Sets the base image that our image will be built from. Its pulled from a [docker repository](https://hub.docker.com/_/microsoft-dotnet-sdk) |
-| [WORKDIR](https://docs.docker.com/engine/reference/builder/#workdir) | Set the working directory for our new image to the app folder |
-| [COPY](https://docs.docker.com/engine/reference/builder/#copy) | Copy all files from the src folder into our container |
-| [RUN](https://docs.docker.com/engine/reference/builder/#run) | Run the restore and publish commands creating the application files |
-| [WORKDIR](https://docs.docker.com/engine/reference/builder/#workdir) | Set the working directory to the out folder just created |
-| [ENTRYPOINT](https://docs.docker.com/engine/reference/builder/#entrypoint) | Start the `dotnet` application when the container starts |
+| Keyword                                                                    | Meaning                                                                                                                                     |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| [FROM](https://docs.docker.com/engine/reference/builder/#from)             | Sets the base image that our image will be built from. Its pulled from a [docker repository](https://hub.docker.com/_/microsoft-dotnet-sdk) |
+| [WORKDIR](https://docs.docker.com/engine/reference/builder/#workdir)       | Set the working directory for our new image to the app folder                                                                               |
+| [COPY](https://docs.docker.com/engine/reference/builder/#copy)             | Copy all files from the src folder into our container                                                                                       |
+| [RUN](https://docs.docker.com/engine/reference/builder/#run)               | Run the restore and publish commands creating the application files                                                                         |
+| [WORKDIR](https://docs.docker.com/engine/reference/builder/#workdir)       | Set the working directory to the out folder just created                                                                                    |
+| [ENTRYPOINT](https://docs.docker.com/engine/reference/builder/#entrypoint) | Start the `dotnet` application when the container starts                                                                                    |
 
 Next we need to build the docker image from the `Dockerfile` using the `docker build` command. The docker client tools are provided as part of the [Docker Desktop](https://docs.docker.com/desktop/) application. We run the following command **from the root of our repository**:
-
 
 ```bash
 docker build -f docker\Dockerfile -t aspnetweb01 .
 ```
 
-* The `-f` switch specifies the path to the `Dockerfile`
-* The `-t ` switch gives the new image the name `aspnetweb01` 
-* The `.`  sets the build context to be the current folder
+- The `-f` switch specifies the path to the `Dockerfile`
+- The `-t ` switch gives the new image the name `aspnetweb01`
+- The `.` sets the build context to be the current folder
 
 Once the image is built we can use the `docker images` command to see our newly built image in the local image repository:
 
-![Docker Image Screenshot](../assets/images/docker-dockerize-aspnet-razorpages-website/docker-images-screenshot.png)
+![Docker Image Screenshot](./docker-images-screenshot.png)
 
 Looks like our image has been built succesfully so now we can use it to run a container.
 
@@ -108,9 +105,9 @@ We can use `docker run` command to start our new container using the image that 
 docker run -d -p 5051:80 --name webapp aspnetweb01
 ```
 
-* The `-d` switch sets the container running in the background
-* The `-p` switch maps the local port, the port of the container, to the port of the "host" system. We can access our new site on port 5051
-* We also specify the name of the container `webapp` and also the name of the image `aspnetweb01`
+- The `-d` switch sets the container running in the background
+- The `-p` switch maps the local port, the port of the container, to the port of the "host" system. We can access our new site on port 5051
+- We also specify the name of the container `webapp` and also the name of the image `aspnetweb01`
 
 So navigate to the url `http://localhost:5051` in your browser and you should see your website displayed. If you have any problems loading the website, try tailing the logs as described in the debugging section below.
 
@@ -122,15 +119,13 @@ Unable to bind to http://localhost:5000 on the IPv6 loopback interface: 'Cannot 
 
 This error is because the kestral webserver cannot bind to the localhost IPv6 address. By specifying the environment variable it binds to `127.0.0.1` instead.
 
-
-
-### Optimising  the Container
+### Optimising the Container
 
 Our simple `Dockerfile` does work, but for production scenarios we really want to try to get that image size down in order to optimise our container. There are a number of steps that we can take to do this:
 
-* Use a musl linux base image like [alpine](https://www.alpinelinux.org/)
-* Use [multi-stage docker builds](https://docs.docker.com/develop/develop-images/multistage-build/)
-* Use the publish trimmed option `dotnet publish` options
+- Use a musl linux base image like [alpine](https://www.alpinelinux.org/)
+- Use [multi-stage docker builds](https://docs.docker.com/develop/develop-images/multistage-build/)
+- Use the publish trimmed option `dotnet publish` options
 
 The following `Dockerfile` uses these techniques and will create a much smaller image size:
 
@@ -143,13 +138,13 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS publish
   COPY . .
   WORKDIR /src/src/Web
   RUN dotnet restore "AspNetDockerWeb.csproj" --runtime linux-musl-x64
-  RUN dotnet publish "AspNetDockerWeb.csproj" -c Release -o /app/publish /p:PublishTrimmed=true --runtime linux-musl-x64 --self-contained /p:DebugType=None 
+  RUN dotnet publish "AspNetDockerWeb.csproj" -c Release -o /app/publish /p:PublishTrimmed=true --runtime linux-musl-x64 --self-contained /p:DebugType=None
 
 FROM base AS final
   ENV ASPNETCORE_URLS=http://+:80
-  WORKDIR /app  
-  RUN apk update && \      
-      apk add libstdc++	  
+  WORKDIR /app
+  RUN apk update && \
+      apk add libstdc++
   COPY --from=publish /app/publish .
   CMD ./AspNetDockerWeb
 ```
@@ -163,21 +158,19 @@ Process terminated. Couldn't find a valid ICU package installed on the system. S
    at System.Globalization.GlobalizationMode..cctor()
 ```
 
-To fix this issue we add a file at the root of the web project called ***runtimeconfig.template.json*** and add the json below. For more information review the related [github issue](https://github.com/dotnet/core/issues/2186#issuecomment-472629489):
+To fix this issue we add a file at the root of the web project called **_runtimeconfig.template.json_** and add the json below. For more information review the related [github issue](https://github.com/dotnet/core/issues/2186#issuecomment-472629489):
 
 ```json
 {
-    "configProperties": {
-        "System.Globalization.Invariant": true
-    }
+  "configProperties": {
+    "System.Globalization.Invariant": true
+  }
 }
 ```
 
 Now build the image as described above use the `docker images` command. The size has dropped from 773mb to 55.7mb
 
-![Docker musl Image Screenshot](../assets/images/docker-dockerize-aspnet-razorpages-website/docker-images-musl-screenshot.png)
-
-
+![Docker musl Image Screenshot](./docker-images-musl-screenshot.png)
 
 ### Debugging the Container
 
@@ -189,17 +182,15 @@ Tail the logs to see what the application is doing:
 docker logs webapp -f
 ```
 
-Connect to the container to run shell commands. 
+Connect to the container to run shell commands.
 
 ```bash
 # Debian
-docker exec -it webapp bash 
+docker exec -it webapp bash
 
 # Alpine
 docker exec -it webapp sh
 ```
-
-
 
 ### Docker Commands Cheat sheet
 
@@ -218,7 +209,7 @@ docker ps -a
 
 # Show all images:
 docker images
- 
+
 # Stop the container and remove it and the image:
 docker stop webapp
 docker rm webapp
@@ -233,7 +224,7 @@ docker exec -it webapp bash
 
 ### Conclusion
 
-In this tutorial we started looking at how to build and run a basic Docker container before looking into a more useful multi-build, optimised scenario. This optimised image is a more realistic starting point for production systems but we have only scratched the surface of what Docker can be used for. 
+In this tutorial we started looking at how to build and run a basic Docker container before looking into a more useful multi-build, optimised scenario. This optimised image is a more realistic starting point for production systems but we have only scratched the surface of what Docker can be used for.
 
 Debugging containers can be fiddly, and it might take some time to understand what the different commands in the `Dockerfile` is actually do but tailing the logs and connecting on to the container are two useful techniques to help.
 

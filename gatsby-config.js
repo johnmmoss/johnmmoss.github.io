@@ -1,4 +1,5 @@
 module.exports = {
+  trailingSlash: "never",
   siteMetadata: {
     siteUrl: `http://johnmmoss.github.io`,
     title: `Tech Notes - johnmmoss`,
@@ -12,13 +13,6 @@ module.exports = {
       options: {
         name: `articles`,
         path: `${__dirname}/articles`,
-      },
-    },
-    {
-      resolve: "gatsby-source-filesystem",
-      options: {
-        name: `assets`,
-        path: `${__dirname}/assets`,
       },
     },
     "gatsby-transformer-sharp",

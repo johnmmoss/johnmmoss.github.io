@@ -13,12 +13,9 @@ The [bootstrap documentation](https://getbootstrap.com/docs/5.2/layout/grid/) ex
 ```html
 <div class="container">
   <div class="row">
-    <div class="col">
-      1 of 2
-    </div>
-    <div class="col">
-      2 of 2
-    </div>
+    <div class="col">1 of 2</div>
+    <div class="col">2 of 2</div>
+  </div>
 </div>
 ```
 
@@ -27,27 +24,22 @@ The grid system starts to get useful because we can specify the width of each co
 ```html
 <div class="container">
   <div class="row">
-    <div class="col-2">
-		First Column
-    </div>
-    <div class="col-4">
-      	Second Column
-    </div>
-    <div class="col-6">
-        Third Column
-    </div>
+    <div class="col-2">First Column</div>
+    <div class="col-4">Second Column</div>
+    <div class="col-6">Third Column</div>
+  </div>
 </div>
 ```
 
 The above columns would produce a layout similar to:
 
-![Three Column Layout](../assets/images/bootstrap-grid-responsive-layout/three-column-layout.png)
+![Three Column Layout](./three-column-layout.png)
 
 The other useful feature that bootstrap provides is the [responsive breakpoints](https://getbootstrap.com/docs/5.2/layout/breakpoints/) that use media queries to enable styles to be conditionally applied at different screen sizes. The [documentation](https://getbootstrap.com/docs/5.2/layout/breakpoints/#available-breakpoints) explains the details, but briefly there are six infixs that can be used with the `col` class. Here are some examples:
 
-| Class       | Description                                                  |
-| ----------- | ------------------------------------------------------------ |
-| `.col`      | This is the default size and styles the smallest screens (&lt;576px) |
+| Class       | Description                                                           |
+| ----------- | --------------------------------------------------------------------- |
+| `.col`      | This is the default size and styles the smallest screens (&lt;576px)  |
 | `.col-sm-6` | For small size screens ( &ge; 576px) this `div` will take up 6 spaces |
 | `.col-lg-3` | For large size screens ( &ge; 992px) this `div` will take up 3 spaces |
 
@@ -55,7 +47,7 @@ We can combine these classes to produce a responsive design.
 
 ### Responsive Layout with `.col`s
 
-Bootstrap is mobile first, the theory being that smaller less powerful devices only need to apply the bare minimum of styles. More progressive enhancements get layered on top to adjust for increasingly larger devices.  
+Bootstrap is mobile first, the theory being that smaller less powerful devices only need to apply the bare minimum of styles. More progressive enhancements get layered on top to adjust for increasingly larger devices.
 
 So the `.col` class describes the behaviour for the smallest screens, screens that are &lt;576px. If we also include a `.col-sm` tag in the same `div` then this tells that `div` how the screen looks for small screens (screens &ge;576px.) By combining these classes we can design different views for the different sizes of screens.
 
@@ -66,49 +58,44 @@ You can apply multiple `col` classes and the content will change at each breakpo
 ```html
 <div class="container">
   <div class="row">
-    <div class="col-12 col-lg-4">
-		div 1
-    </div>
-    <div class="col-12 col-sm-6 col-lg-4">
-      	div 2
-    </div>
-    <div class="col-12 col-sm-6 col-lg-4">
-        div 3
-    </div>
+    <div class="col-12 col-lg-4">div 1</div>
+    <div class="col-12 col-sm-6 col-lg-4">div 2</div>
+    <div class="col-12 col-sm-6 col-lg-4">div 3</div>
+  </div>
 </div>
 ```
 
-* By default on extra small screens the columns appear as three seperate rows. 
+- By default on extra small screens the columns appear as three seperate rows.
 
-* When the screen goes above 576px it becomes a small screen and the top row stays but the bottom two rows join into a single row equally spaced apart:
+- When the screen goes above 576px it becomes a small screen and the top row stays but the bottom two rows join into a single row equally spaced apart:
 
-  ![Responsive Layout Small Screen](../assets/images/bootstrap-grid-responsive-layout/responsive-layout-small.png)
+  ![Responsive Layout Small Screen](./responsive-layout-small.png)
 
-* When the screen goes above &ge;992px the screen is now large and the three rows become three equally spaced columns:
-  
-  ![Responsive Layout Large Screen](../assets/images/bootstrap-grid-responsive-layout/responsive-layout-large.png)
+- When the screen goes above &ge;992px the screen is now large and the three rows become three equally spaced columns:
+
+  ![Responsive Layout Large Screen](./responsive-layout-large.png)
 
 ### Bootstrap Responsive Utility Classes
 
 So the grid system and breakpoints make it nice and easy to create these responsive designs. But wait, there's more... these breakpoints can also be applied to many of the Bootstrap utilities:
 
-* [Margin and Padding](https://getbootstrap.com/docs/5.2/utilities/spacing/#notation)
-* [Display](https://getbootstrap.com/docs/5.2/utilities/display/#hiding-elements)
-* [Float](https://getbootstrap.com/docs/5.2/utilities/float/#responsive)
+- [Margin and Padding](https://getbootstrap.com/docs/5.2/utilities/spacing/#notation)
+- [Display](https://getbootstrap.com/docs/5.2/utilities/display/#hiding-elements)
+- [Float](https://getbootstrap.com/docs/5.2/utilities/float/#responsive)
 
 Lets consider the display utillities:
 
-*  `.d-block`
-* `.d-none`
-* `.d-inline`
-*  `.d-inline-block` 
+- `.d-block`
+- `.d-none`
+- `.d-inline`
+- `.d-inline-block`
 
 They can be combined with the breakpoints like so:
 
-* `.d-sm-block`
-* `.d-lg-none`
+- `.d-sm-block`
+- `.d-lg-none`
 
-Lets see these in action, consider the html below. 
+Lets see these in action, consider the html below.
 
 ```html
 <div class="row">
