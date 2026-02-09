@@ -1,0 +1,209 @@
+main {
+  padding-top: 20px;
+}
+
+h1 {
+  position: relative;
+  font-size: 3.5em;
+  line-height: 0.9;
+  text-align: center;
+  color: #525252;
+}
+
+h2 {
+  color: #525252;
+  font-size: 1.7m;
+}
+
+h3 {
+  margin-top: 3%;
+  padding-bottom: 10px;
+  font-size: 1.5em;
+  color: #525252;
+  border-bottom: 1px solid #525252;
+}
+
+h3.home {
+  margin-top: 0;
+  font-size: 1.2em;
+  border-bottom: 1px solid #a9a9a9;
+  margin-bottom: 20px;
+  letter-spacing: 2px;
+  padding-bottom: 7px;
+  color: #525252;
+}
+
+h4 {
+  margin-top: 3%;
+  margin-bottom: 10px;
+  font-size: 1.2em;
+}
+
+a {
+  text-decoration: none;
+}
+
+pre {
+  overflow: auto;
+  word-wrap: normal;
+  white-space: pre;
+}
+
+footer {
+  padding: 10px;
+  text-align: center;
+}
+
+.container {
+  font-family: sans-serif;
+}
+
+.site {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+.site-content {
+  flex-grow: 1;
+}
+
+.hero-main {
+  position: relative;
+  height: 30vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url("../images/tortise.jpg");
+  background-size: cover;
+  background-position: 50% 0%;
+  letter-spacing: 3px;
+}
+
+.hero-main::before {
+  content: "";
+  position: absolute;
+  top: 4%;
+  right: 0px;
+  bottom: 4%;
+  left: 0px;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.container-min {
+  max-width: 800px;
+  margin: auto;
+}
+.blog-article {
+  margin-bottom: 2%;
+}
+
+.blog-article-date {
+  font-style: italic;
+  color: gray;
+  padding-bottom: 6px;
+}
+
+.blog-article-content {
+  margin-bottom: 20px;
+}
+
+.card-title {
+  font-weight: 500;
+  font-size: 1.5em;
+}
+
+.blog-title-link {
+  color: #525252;
+  text-decoration: none;
+}
+
+table {
+  margin: 30px 0;
+  border-bottom: 1px solid silver;
+  border-top: 1px solid silver;
+  width: 100%;
+}
+
+th,
+td {
+  height: 40px;
+}
+
+th {
+  background-color: aliceblue;
+}
+
+th:first-child,
+td:first-child {
+  width: 170px;
+}
+
+/* Reset all list items to have just a top border */
+.tree-view .list-group-item {
+  border-radius: 0;
+  border-width: 1px 0 0 0;
+  padding: 0.75rem 0.8rem;
+}
+
+/***************/
+/** TREE VIEW **/
+/***************/
+
+/* Add a border to the top level */
+.tree-view {
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* Remove duplicate top border  */
+.tree-view > .list-group-item:first-child {
+  border-top-width: 0;
+}
+
+/* Add padding for nested items */
+.tree-view > .list-group-item {
+  padding-left: 35px;
+}
+
+.tree-view > .list-group > .list-group-item {
+  padding-left: 55px;
+}
+
+.tree-view > .list-group > .list-group > .list-group-item {
+  padding-left: 75px;
+}
+
+.tree-view > .list-group > .list-group > .list-group > .list-group-item {
+  padding-left: 80px;
+}
+
+/* Show +/- images for treeview icons */
+.collapse-indicator {
+  background-image: url(../images/dash.svg);
+  background-repeat: no-repeat;
+}
+
+.collapse-indicator.collapsed {
+  background-image: url(../images/plus.svg);
+}
+
+.collapse-indicator-pos-0 {
+  background-position: 10px 50%;
+}
+
+.collapse-indicator-pos-1 {
+  background-position: 30px 50%;
+}
+
+.collapse-indicator-pos-2 {
+  background-position: 50px 50%;
+}
+
+/* City icon */
+.city-icon {
+  background: url(../images/building.svg) no-repeat center left;
+  padding: 12px;
+}
