@@ -357,7 +357,7 @@ Now that we have found a suitable data source we need to convert the data into a
 
 The sample code below covers steps one to four:
 
-```c#
+```csharp
 public class CityRow
 {
 	public string Country { get; set; }
@@ -404,7 +404,7 @@ var groupedCityRows = parsedCityRows
 
 The resulting `groupedCityRows` is a flat collection for each **county**. The final step, step five, is to convert this flat collection into the desired hierarchy of **countries**, **counties**, **cities**. The final model classes and the sample code to do this conversion is shown below:
 
-```c#
+```csharp
 public class TreeViewModel
 {
 	public List<CountryTreeViewModel> Countries { get; set; }

@@ -16,7 +16,7 @@ I decided to use the data provided by [annexare.com](https://annexare.com/) in t
 
 Start by creating an ASP.NET Core Web App and add the following code to the `Index.chtml.cs` page's `OnGet` method to read the data from the data file:
 
-```c#
+```csharp
 var path = @"Data\countries.csv";
 using (var reader = new StreamReader(path))
 using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
@@ -32,7 +32,7 @@ using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
 
 The above code uses a `Country` class:
 
-```c#
+```csharp
 public class Country
 {
 	public string Code { get; set; }
@@ -110,13 +110,13 @@ Install-Package DataTables.AspNet.AspNetCore -Version 2.0.2
 
 We need to register the datatables.net helpers before we can uses them. My Net 6.0 Web App requires the following to be added to `Program.cs`:
 
-```c#
+```csharp
 builder.Services.RegisterDataTables();
 ```
 
 Now create a new API controller `CountriesController.cs` and add the following endpoint:
 
-```c#
+```csharp
 [HttpGet]
 [Route("/filter")]
 public async Task<IActionResult> Get(IDataTablesRequest request)
@@ -189,7 +189,7 @@ Nice, server side pagination done! Now we can use large datasets with this contr
 
 We read the `searchTerm` from `request.Search.Value`. The code below implements search using LINQ to search the `Name`, `Capital` and `Continent` columns of the countries and only returns values where there are a match.
 
-```c#
+```csharp
 var searchedCountries = string.IsNullOrEmpty(searchTerm)
 	? countries
 	: countries.Where(x => x.Name.Contains(searchTerm, StringComparison.CurrentCultureIgnoreCase) ||
@@ -203,7 +203,7 @@ Of course, the search is empty initially, so we also need to wrap the search in 
 
 For server-side sorting, the `IDataTablesRequest` provides a collection `Column` objects, each of which has a `Sort` property. If sort has been selected then the `Sort` property is set and contains the `SortDirection`:
 
-```c#
+```csharp
 IEnumerable<Country> sortedAndSearchedCountries;
 
 switch (sortField)
@@ -231,7 +231,7 @@ switch (sortField)
 
 Yes, we did implement server-side pagination above. However, we need to update the pagination code above so that it takes into account the filtered data. When we create the response, we now differentiate between the `totalCount` and the `totalRecordsFilteredCount`. When the search box is used, both counts are displayed on the grid:
 
-```c#
+```csharp
 var pagedGridData = sortedAndSearchedCountries
 						.Skip(request.Start)
 						.Take(request.Length)

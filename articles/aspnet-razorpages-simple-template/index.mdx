@@ -16,7 +16,7 @@ The .NET 6 empty template contains an impressive lack of code and, although it d
 
 The code in `program.cs` while minimal does actual set quite a few defaults
 
-```c#
+```csharp
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
@@ -41,7 +41,7 @@ We need to enable Razor Pages via the `WebApplicationBuilder`, and then setup ro
 
 With our new methods added, our new `Program.cs` looks like:
 
-```c#
+```csharp
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 var app = builder.Build();
@@ -161,7 +161,7 @@ Well, our site is not going to win any awards but adding some images sure would 
 
 Images are known as static content. In order to be able to serve static content in our website we ned to enable it in the middleware. This is a straightforward call on our `WebApplication` class:
 
-```c#
+```csharp
 app.UseStaticFiles();
 ```
 
