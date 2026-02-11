@@ -25,7 +25,7 @@ const Tags = ({ pageContext, data }) => {
               date={node.frontmatter.date}
               tags={node.frontmatter.tags}
               excerpt={node.excerpt}
-              slug={node.slug}
+              slug={node.frontmatter.slug}
             ></ArticleCard>
           );
         })}
@@ -55,9 +55,9 @@ export const pageQuery = graphql`
             date(formatString: "MMMM D, YYYY")
             title
             tags
+            slug
           }
           id
-          slug
           excerpt(pruneLength: 300)
         }
       }

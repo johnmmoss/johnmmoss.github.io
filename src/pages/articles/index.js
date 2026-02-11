@@ -14,7 +14,7 @@ const BlogPage = ({ data }) => {
             title={node.frontmatter.title}
             date={node.frontmatter.date}
             excerpt={node.excerpt}
-            slug={node.slug}
+            slug={node.frontmatter.slug}
             tags={node.frontmatter.tags}
           ></ArticleCard>
         ))}
@@ -31,9 +31,9 @@ export const query = graphql`
           date(formatString: "MMMM D, YYYY")
           title
           tags
+          slug
         }
         id
-        slug
         excerpt(pruneLength: 260)
       }
     }

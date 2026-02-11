@@ -48,12 +48,17 @@ const IndexPage = ({ data }) => {
           <h3 className="home">Recent Articles</h3>
           {data.allMdx.nodes.map((node) => (
             <div className="mb-4" key={node.id}>
-              <Link to={`/articles/${node.slug}`} className="blog-title-link">
+              <Link
+                to={`/articles/${node.frontmatter.slug}`}
+                className="blog-title-link"
+              >
                 <h5>{node.frontmatter.title}</h5>
               </Link>
               <p>
                 {node.excerpt} &nbsp;
-                <Link to={`/articles/${node.slug}`}>read more ➝</Link>
+                <Link to={`/articles/${node.frontmatter.slug}`}>
+                  read more ➝
+                </Link>
               </p>
             </div>
           ))}
@@ -71,9 +76,9 @@ export const query = graphql`
           date(formatString: "MMMM D, YYYY")
           title
           tags
+          slug
         }
         id
-        slug
         excerpt(pruneLength: 200)
       }
     }
