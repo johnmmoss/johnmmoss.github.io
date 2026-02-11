@@ -1,0 +1,25 @@
+---
+title: "Using Markdown in ASP.NET"
+date: "2017-03-06"
+slug: "using-markdown-in-aspnet"
+tags: ["ASP.NET", "Markdown"]
+---
+
+Recently I was tasked with adding some CMS style functionality to a customers site. Rather than reinvent the wheel by doing my own pattern matching etc, I decided to use some markdown to do the hard work. I naively thought that it would be easier to implement because the markdown library would take care of key security concerns. Little did I realise... For starters, I enjoyed the blog post [FAQ: Untrusted users and HTML](https://jacobian.org/writing/untrusted-users-and-html/). It sets the scene quite nicely:    **_"No Method of displaying untrusted HTML is 100% safe."_** There are some [interesting debates](https://talk.commonmark.org/t/cross-site-scripting-issue-in-standard-markdown-example-at-try-standardmarkdown-com/55) about whether markdown should actually include some basic security to stop people (like me 😊) inadvertently introducing issues. After doing some initial research, I thought it would be OK just to convert the markdown to html and then html encode it. But what happens when you type this markdown in..    \[Go Boom!\](javascript:alert('Boom!') Yes, you guessed it... BOOM! The JavaScript is executed, because by default the markdown will just get converted into the appropriate href link. See [Markdown and Xss](https://michelf.ca/blog/2010/markdown-and-xss/) for a good description of the problem. So, no shortcuts...
+
+1.  Html Encode
+2.  Markdown convert
+3.  Html Sanitize
+
+  
+Rick Strahl has a great blog post [.NET HTML Sanitation for rich HTML Input](https://weblog.west-wind.com/posts/2012/Jul/19/NET-HTML-Sanitation-for-rich-HTML-Input), explaining his findings as he worked through looking at Html Sanitizing in .Net. Its worth a read, although I didn't end up using his [HtmlSanitizer](https://github.com/RickStrahl/HtmlSanitizer) code as I found a more complete example... the [.NET Html Sanitizer](https://github.com/mganss/HtmlSanitizer). This Html Sanitizer uses [AngleSharp](https://github.com/AngleSharp/AngleSharp). There's a wealth of markdown converters out there, I ended up using [CommonMark.NET](https://github.com/Knagis/CommonMark.NET) after seeing it being "advertised" in one of the channel 9.net core videos. The final snippet for converting the markdown ended up as...
+```csharp
+private static string ConvertMarkdown(string unsafeMarkdown)
+{
+    var encodedMarkdown = HttpUtility.HtmlEncode(unsafeMarkdown);
+    var unsafeContent = CommonMark.CommonMarkConverter.Convert(encodedMarkdown);
+    var safeContent = new HtmlSanitizer().Sanitize(unsafeContent);
+
+    return safeContent;
+}
+```

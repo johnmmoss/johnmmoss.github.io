@@ -1,0 +1,28 @@
+---
+title: "Clicked checkbox does not post back to the server"
+date: "2016-07-12"
+slug: "clicked-checkbox-does-not-post-back-to-the-server"
+tags: ["ASP.NET MVC"]
+---
+
+Recently I got a bit stuck trying to do the simple task of set some values on a checkbox. The form was quite complex and I was finding that checking a checkbox to signify a "FollowUp" had occurred was not being posted back to the server. It took quite a bit of fiddling around before I got to the bottom of the problem so thought I would record the solution...  
+When you create a checkbox using the HtmlHelper class in ASP.NET MVC 4 the html produced actually contains a hidden checkbox. This hidden checkbox provides a default value of false in the event that the user does not actually click the checkbox: 
+```html
+<div class="inputControl">
+	<input id="FollowUp" name="FollowUp" type="checkbox" value="true" />
+	<input name="FollowUp" type="hidden" value="false" />
+</div>
+```
+When the form is submitted in this scenario the form posts back with the hidden value in the query string. if the checkbox has been clicked, then two values are posted back and with the first taking precedence:    &FollowUp=true&FollowUp=false My checkbox had got a little stuck because I had used the incorrect method to try to disable and clear the checkbox when the form initially loaded: 
+```javascript
+// To disable and clear the checkbox, use "prop" NOT "attr"
+$("#FollowUp").prop("disabled", checked);
+$("#FollowUp").prop("checked", false);
+
+// Options for setting values
+checkbox.val("disabled", false);  // Sets the value, but not if it is checked
+checkbox.prop("disabled", false); // Disables the checkbox
+checkbox.attr("disabled", false); // Also disables depending on version
+checkbox.is(":checked");          // Returns checked value
+```
+So using val was a bad idea, it is the checked value of the checkbox that matters. But the real problem appears to be using the **attributes** method rather than the **properties** method. The [jQuery documentation](http://api.jquery.com/prop/#entry-longdesc) explaings this well. For some more information on the checkbox HtmlHelper [read here](http://www.tutorialsteacher.com/mvc/htmlhelper-checkbox-checkboxfor).

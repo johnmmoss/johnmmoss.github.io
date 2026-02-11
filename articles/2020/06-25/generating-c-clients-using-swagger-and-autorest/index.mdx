@@ -1,0 +1,41 @@
+---
+title: "Generating C# Clients using Swagger and Autorest"
+date: "2020-06-25"
+slug: "generating-c-clients-using-swagger-and-autorest"
+tags: []
+---
+
+Autorest is a great tool for automating the creation of clients from Swagger or Open Api definition files. The resulting code can be dropped into a project and shareable client code can be distributed.
+
+#### Installation
+
+  
+First install node and then, using npm we install autorest:    _npm install -g autorest_ This will install autorest into the command line so now we can view the help and check its installed properly:    _autorest --help_  
+  
+
+#### Swagger.json file
+
+  
+Before we can run autorest to generate the code, we need to get the Swagger or Open Api json definition of the Api we are trying to generate the code for. In .net projects there is a library called Swashbuckle that provides this functionality. This is a [good MSDN page](https://docs.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-swashbuckle?view=aspnetcore-3.1&tabs=visual-studio) explaining how to setup swagger using swashbuckle. Once we have the Json description of the API in question, copy the json down and save it to disk as a file e.g. swagger.json.
+
+#### Generating Client Code
+
+  
+Now that we have autorest installed and we have the swagger.json file downloaded we simply run the autorest command:    _autorest --input-file=swagger.json --csharp --namespace=Locations.Api.Client --output-folder=LocationsApiClient_ This command will produce a folder called LocationsApiClient which contains the generated files. The names of the classes generated depend on the Api swagger definition.
+
+#### Setting up the Project
+
+  
+The raw code files can be dropped into any project as its just C# but they are dependant on the following libraries. Instal these libraries and the solution should build:
+
+-   Microsoft.Rest.ClientRuntime
+-   NewtonSoft.Json
+
+  
+
+#### References
+
+-   [Installing Autorest](https://github.com/Azure/autorest/blob/master/docs/installing-autorest.md)
+-   [Autorest Commandline Documentation](https://github.com/Azure/autorest/blob/master/docs/user/command-line-interface.md)
+-   [Autorest Project Setup (C#)](http://azure.github.io/autorest/client/proj-setup.html)
+-   [Get Started with Swashbuckle and ASP.NET core](https://docs.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-swashbuckle?view=aspnetcore-3.1&tabs=visual-studio)

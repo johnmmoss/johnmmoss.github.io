@@ -1,0 +1,183 @@
+---
+title: "Writing Acceptance Tests using SpecFlow & Selenium"
+date: "2015-02-26"
+slug: "writing-acceptance-tests-using-specflow-selenium"
+tags: ["Acceptance Tests", "Selenium"]
+---
+
+Selenium and SpecFlow are pretty straight forward to get to grips with individually, but on larger projects when the page object pattern is used things start to get a little more complicated. I find it useful to think about three layers when organizing the code that runs the tests...
+
+1.  SpecFlow Scenarios are written in a **feature** file using [Cucumber](https://cukes.info/) syntax
+2.  Each part of the scenario is implemented in a **steps** file.
+3.  The steps call into **page objects** which act as an API using Selenium Webdriver to access the page.
+
+  
+
+### Setting up SpecFlow Feature Files
+
+1.  Install the SpecFlow Extension for Visual Studio which provides the feature file and hook file templates, as well as a context menu options for running/debugging tests.
+2.  Create a Visual Studio Class Library project for the tests.
+3.  Install the SpecFlow nuget package for the dll (SpecFlow.NUnit)
+4.  Add a feature file and add in some "given, then, when" statements:
+    ```gherkin
+Feature: UserAccountFeature
+	In order to be able to use the site
+	As a user
+	I want to be able to manage my account
+
+Scenario: User can register to use the site
+	Given I am on the register page
+	And I have entered a Username of 'johnmmoss' and a password of 'P@ssword123'
+	When I press register
+	Then a new account is created with a username of  a Username of 'johnmmoss'
+```
+    
+5.  Next add a class file for the feature steps and use the extension tooling to generate the steps by right clicking on the scenario and selecting Generate Step Definitions and copying in the code.
+6.  Add the Binding attribute to the top of the steps class and you should now have a test that runs, all be it with some pending method calls.
+
+Source: [SpecFlow Website](http://www.specflow.org/getting-started)
+
+### Writing the Steps Class
+
+The Steps class uses page objects to actually interact with the page so we don't need to know about Selenium at this level. Each page object exposes methods that represent actions on that page, like EnterDetails or ClickRegister below. 
+```csharp
+[Binding]
+public class UserAccountSteps
+{
+	[Given(@"I am on the register page")]
+	public void GivenIAmOnTheRegisterPage()
+	{
+		var homePage = ScenarioContext.Current.Get<HomePage>();
+		var registerPage = homePage.GoToRegisterPage();
+		ScenarioContext.Current.Set(registerPage);
+	}
+
+	[Given(@"I have entered a Username of '(.*)' and a password of '(.*)'")]
+	public void GivenIHaveEnteredAUsernameOfAndAPasswordOf(string username, string password)
+	{
+		var registerPage = ScenarioContext.Current.Get<RegisterPage>();
+		registerPage.EnterDetails(username, password);
+	}
+
+	[When(@"I press register")]
+	public void WhenIPressRegister()
+	{
+		var registerPage = ScenarioContext.Current.Get<RegisterPage>();
+		registerPage.ClickRegister();
+	}
+
+	[Then(@"a new account is created with a username of  a Username of '(.*)'")]
+	public void ThenANewAccountIsCreatedWithAUsernameOfAUsernameOf(string username)
+	{
+		using (var context = new SpecflowTestContext())
+		{
+			var allUserProfiles = context.UserProfiles.ToList();
+
+			Assert.That(allUserProfiles.Count, Is.EqualTo(1));
+			Assert.That(allUserProfiles.First().UserName, Is.EqualTo(username));
+		}
+	}
+}
+```
+The important thing to take note of in this code excerpt, is that the page objects are stored in the Specflow [ScenarioContext](http://www.specflow.org/documentation/ScenarioContext/). You can use instance variables, but its better to use the context for when you start sharing steps across multiple feature files. Also note the pattern for navigating to a new page. The home page object has a GoToRegisterPage which returns a RegisterPage object which is then available for the next step to use. Source: [Selenium HQ Docs](http://docs.seleniumhq.org/docs/03_webdriver.jsp#webdriver-and-the-selenium-server)
+
+### Page Objects and Selenium WebDriver
+
+Setting up the Selenium WebDriver is as simple as installing the appropriate Selenium Nuget package (Selenium.WebDriver) The [Selenium API documentation](http://docs.seleniumhq.org/docs/03_webdriver.jsp#selenium-webdriver-api-commands-and-operations) is good, so its easy enough to get started finding elements and clicking buttons etc. First up you need to initialize the web driver object:
+
+  
+```csharp
+IWebDriver driver = new FirefoxDriver();
+FeatureContext.Current.Set(driver);
+driver.Navigate().GoToUrl(Url);
+```
+Now we are ready to start using the web driver to find elements on the page. Of course the code to do that is actually in our page object classes, so here is sample code of what a HomePage and RegisterPage class: 
+```csharp
+public class HomePage 
+{
+	private readonly IWebDriver webDriver;
+	protected static string BaseUrl = ConfigurationManager.AppSettings["WebsiteUrl"];
+
+	public HomePage(IWebDriver webDriver)
+	{
+		this.webDriver = webDriver;
+	}
+
+	public RegisterPage GoToRegisterPage()
+	{
+		var registerLink = webDriver.FindElement(By.Id("registerLink"));
+		registerLink.Click();
+		return new RegisterPage(webDriver);
+	}
+}
+
+public class RegisterPage
+{
+	private readonly IWebDriver webDriver;
+	protected static string BaseUrl = ConfigurationManager.AppSettings["WebsiteUrl"];
+
+	public RegisterPage(IWebDriver webDriver)
+	{
+		this.webDriver = webDriver;
+	}
+
+	public void EnterDetails(string username, string password)
+	{
+		webDriver.FindElement(By.Id("UserName")).SendKeys(username);
+		webDriver.FindElement(By.Id("Password")).SendKeys(password);
+		webDriver.FindElement(By.Id("ConfirmPassword")).SendKeys(password);
+	}
+
+	public void ClickRegister()
+	{
+		var elem = webDriver.FindElement(By.XPath("//input[@type='submit']"));
+		elem.Click();
+	}
+}
+```
+The By class provides the functionality to find by id, name, link text, class name, css and more so it really is very flexible. By the time you have the feature files, steps and page objects all set up, accessing the page with Selenium is comparatively straight forward.
+
+### Test Set Up using the Hooks
+
+As you may have noticed above, the web driver, once initialized is stored in the FeatureContext. This code fragment sits in the BeforeFeature hook. There are before and after hooks at a feature level and a scenario level. So the last piece of the puzzle is to be aware that the web driver object is intialized and stored in the FeatureContext using the BeforeFeature hook AND the HomePage object is initialized at the beginning of every scenario and stored in the ScenarioContext. This is also the place that you would do any database setup and/or teardown.
+```csharp
+[BeforeFeature()]
+public static void BeforeFeature()  // must be static
+{
+	// Create the webdriver and store it in the feature context
+	IWebDriver driver = new FirefoxDriver();
+	FeatureContext.Current.Set(driver);
+	driver.Navigate().GoToUrl(Url);
+
+	// Empty the database ready for the tests
+	using (var context = new SpecflowTestContext())
+	{
+		context.Database.ExecuteSqlCommand("DELETE FROM UserProfile");
+	}
+}
+
+[AfterFeature]
+public static void AfterFeature()
+{
+	// Clear up the webdriver
+	var webDriver = FeatureContext.Current.Get<IWebDriver>();
+	webDriver.Quit();
+	webDriver.Dispose();
+}
+
+[BeforeScenario]
+public void BeforeScenario()
+{
+	// At the begining of the scenario, we are on the homepage
+	var webDriver = FeatureContext.Current.Get<IWebDriver>();
+	var homePage = new HomePage(webDriver);
+	ScenarioContext.Current.Set<HomePage>(homePage);
+}
+
+[AfterScenario]
+public void AfterScenario()
+{
+}
+```
+
+I have a [sample acceptance test solution](https://github.com/johnmmoss/SpecflowTest) setup on GitHub if you want to see the theory above in action. It uses the ASP.NET MVC 4 internet template to provide some simple test scenarios.

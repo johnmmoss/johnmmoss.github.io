@@ -1,0 +1,82 @@
+---
+title: "Creating objects in JavaScript"
+date: "2016-07-01"
+slug: "creating-objects-in-javascript"
+tags: ["JavaScript"]
+---
+
+I've been messing around with JavaScript for years now, but have been more of a JQuery hacker. I thought it was time to learn the language properly as its becoming increasingly common in web applications these days. This is a bit of a dummies guide, but I guess you need to start somewhere... JavaScript is a dynamically typed language where objects can be throught of as groups of properties. A property can one of six basic types: numbers, strings, Booleans, objects, functions, and undefined values.  
+
+  
+```javascript
+'use strict'
+
+// An empty JavaScript object
+var myEmpty = {};
+
+// Create an object using object literals
+var monkey = { name: "John", age: 23, color: "blue" };
+
+console.log(monkey.name)        // John
+
+// You don't actually need to declare a property for it to be there:
+monkey.height = 200;
+
+console.log(monkey.height)      // 200
+
+// A property can also be a function
+var gorilla   = { name: "ted", age: 42, color:function() { return "orange" } };
+
+console.log(gorilla.color())    // orange
+
+// we can create new objects using a constructor function
+function Monkey(name, color) {
+    this.name = name;
+    this.color = color
+}
+var bill = new Monkey("bill", "pink");
+
+// bill is a new object
+console.log(bill.color); // pink
+```
+
+  
+
+When we create an object using a constructor function in JavaScript the new keyword is syntactic sugar for [Object.create](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/create). The function Monkey is just a normal function. If we don't use the keyword new, then this refers to the current global context which, for a webpage, would be the window object. When we do use new a new object is created and the context of this is set to the new object. The capital letter of the Monkey function is of course just a style preference. Here is the same example, but using the Object.create method. notice that we have to set alot of meta data about each of the properties.
+```javascript
+'use strict'
+
+var monkey = Object.create(Object.prototype,
+                {
+                    name: {
+                        value: "Hansel",
+                        writable: true,
+                        enumerable: true,
+                        configurable: true
+                    },
+                    color: {
+                        value: "Brown",
+                        writable: true,
+                        enumerable: true,
+                        configurable: true
+                    }
+                });
+
+console.log(monkey.name); // Hansel
+```
+  
+In ECMA 6 there is a new class keyword for creating objects. Its actually just syntatic sugar for creating exactly the same as above:
+```javascript
+'use strict'
+
+  class Monkey {
+      constructor(name, color) {
+          this.color = color;
+          this.name = name;
+      }
+  }
+
+  var bert = new Monkey("albert", "red");
+  
+  console.log(bert.name)      // albert
+```

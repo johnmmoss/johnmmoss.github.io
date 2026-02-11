@@ -1,0 +1,40 @@
+---
+title: "Setting up Rhino Mock Stubs"
+date: "2016-01-12"
+slug: "setting-up-rhino-mock-stubs"
+tags: ["Rhino Mocks", "TDD", "Unit Tests"]
+---
+
+A quick template below for the basic setup of Rhino Mocks Stubs...  
+```csharp
+  private IConnectionManager _connectionManager;
+  private ISubscriptionManager _subscriptionManager;
+
+  [SetUp]
+  public void SetUp()
+  {
+      _connectionManager = MockRepository.GenerateStub<IConnectionManager>();
+      _subscriptionManager = MockRepository.GenerateStub<ISubscriptionManager>();
+      
+      _connectionManager.Stub(x => x.Connections)
+          .Return(new ConnectionInfo()
+                  {
+                      ErrorsInLast24Hours = _errorsInLast24Hours
+                  });
+      _subscriptionManager.Stub(x => x.GetSubscriptions())
+          .Return(new List<SubscriptionInfo>()
+                  {
+                      new SubscriptionInfo() {SystemId = 100}
+                  });
+  }
+
+  [Test]
+  public void GetStatistics_returns_the_correct_statistics()
+  {
+      var systemInfoProvider = new SystemInfoProvider(_connectionManager, _subscriptionManager);
+
+      var result = systemInfoProvider.GetStatistics();
+
+      Assert.That(result, Is.Not.Null);
+  }
+```

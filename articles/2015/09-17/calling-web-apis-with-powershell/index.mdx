@@ -1,0 +1,55 @@
+---
+title: "Calling Web APIs with Powershell"
+date: "2015-09-17"
+slug: "calling-web-apis-with-powershell"
+tags: ["Powershell"]
+---
+
+You go along way by calling apis at the command line. Powershell provides the following methods that you will find useful...  
+
+-   [Invoke-RestMethod](https://technet.microsoft.com/en-us/library/hh849971.aspx)
+-   [Invoke-WebRequest](https://technet.microsoft.com/en-us/library/hh849901.aspx)
+-   [ConvertTo-Json](https://technet.microsoft.com/en-us/library/hh849922.aspx)
+-   [ConvertFrom-Json](https://technet.microsoft.com/en-us/library/hh849898.aspx)
+
+  
+
+### Examples of simple api web request
+
+  
+```powershell
+# Get a page over http
+Invoke-RestMethod   -URI https://www.google.com -Method "GET"
+
+# Post text content over http
+Invoke-RestMethod -URI http://mvcsampleapp.apphb.com/Feedback -Body "Email=afsd&FirstName=sdfasdf&Surname=fasdfsd&Text=fasdfsdafsd" -ContentType "text/html" -Method POST 
+
+# Get a page over http specifying the IE proxey server
+$Webproxy = (get-itemproperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings').ProxyServer
+Invoke-RestMethod   -URI  https://www.google.com -Method "GET" -Proxy $Webproxy -UseDefaultCredentials
+```
+  
+
+  
+
+### Examples using the IE Browser Proxey settings
+
+  
+```powershell
+# Read out proxy settings
+$Webproxy = (get-itemproperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings').ProxyServer
+
+# Wrapper method for Invokeing a rest method
+function  Invoke-Request {
+	Param( [string]$Method="GET", [string]$Body, [string]$Url )
+
+	if($Method -eq "GET") {
+		return Invoke-RestMethod  -Proxy $Webproxy -UseDefaultCredentials -URI $Url -Method "GET"
+	} else {
+		return Invoke-RestMethod  -Proxy $Webproxy -UseDefaultCredentials -URI $Url -ContentType "application/json" -Method $Method -Body $Body
+	}
+}
+
+#Example Usage Get
+Invoke-Rest -Url "https://octopus2/api//Teams?apiKey=$API_KEY"
+```

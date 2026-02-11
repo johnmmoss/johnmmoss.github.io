@@ -1,0 +1,109 @@
+---
+title: "Mocking the Controller Context using Rhino Mock"
+date: "2015-02-09"
+slug: "mocking-the-controller-context-using-rhino-mock"
+tags: ["Rhino Mocks", "Unit Tests"]
+---
+
+When using ASP.NET MVC 5, its easy to write unit tests around the framework due to the various abstractions provided. [Stephen Walther](http://stephenwalther.com/archive/2008/07/01/asp-net-mvc-tip-12-faking-the-controller-context) provides a good overview of the different objects. Whenever you need to interact with the request, response, session or browser, the following objects can be mocked using your mocking framework of choice:
+
+-   HttpRequestBase
+-   HttpResponseBase
+-   HttpSessionBase
+-   HttpBrowserCapabilitiesBase
+
+  
+Here of some examples using of mocking the various classes using Rhino Mock:
+
+## Mocking the Controller Context (MVC)
+
+```csharp
+public void SetUpControllerContext()
+{
+	// Setup the controller context plumbing
+	var httpContext = MockRepository.GenerateMock<HttpContextBase>();
+	var httpRequest = MockRepository.GenerateMock<HttpRequestBase>();
+	var httpResponse = MockRepository.GenerateMock<HttpReponseBase>();
+	var browserMock = MockRepository.GenerateMock<HttpBrowserCapabilitiesBase>();
+ 
+	// Set the required test values
+	httpContext.Stub(h => h.Request.Browser).Return(browserMock);
+	httpContext.Stub(h => h.Request).Return(httpRequest);
+ 
+	// Now create the system under test
+	var repository = MockRepository.GenerateMock<Repository>();
+	var controller = new CustomerController(repository);
+	controller.ControllerContext = new ControllerContext(httpContext, new RouteData(), _controller);
+		   
+	controller.Create();
+   
+	// Assertions
+}
+```
+  
+
+## Mocking the Controller Context (Web API)
+
+```csharp
+var controller = new TestController();
+var config = new HttpConfiguration();
+var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/api/test");
+var route = config.Routes.MapHttpRoute("default", "api/{controller}/{id}");
+var routeData = new HttpRouteData(route, new HttpRouteValueDictionary { { "controller", "test" } });
+
+controller.ControllerContext = new HttpControllerContext(config, routeData, request);
+controller.Request = request;
+controller.Request.Properties[HttpPropertyKeys.HttpConfigurationKey] = config;
+```
+
+## Mocking the Identity and Principal
+
+```csharp
+public void SetUpHttpRequestUser()
+{
+	// Setup the controller context plumbing
+	var httpContext = MockRepository.GenerateStub<HttpContextBase>();
+	var identity = MockRepository.GenerateStub<IIdentity>();          
+	var principal = MockRepository.GenerateStub<IPrincipal>();
+                                   
+	// Set the required test values
+	identity.Stub(i => i.Name).Return("TestUser");
+	principal.Stub(u => u.Identity).Return(identity);
+	httpContext.User = new GenericPrincipal(new GenericIdentity(String.Empty), new string[0]);
+;
+           
+	// Now create the system under test
+	var repository = MockRepository.GenerateMock<Repository>();
+	var controller = new CustomerController(repository);
+	var controller.ControllerContext = new ControllerContext(httpContext, new RouteData(), _controller);
+                                   
+	controller.Create();
+   
+	// Assertions
+}
+```
+  
+
+## Mocking the Session State
+
+```csharp
+public void SetUpSession()
+{
+	// Arrange
+	var httpContext = MockRepository.GenerateStub<HttpContextBase>();
+	var httpSession = MockRepository.GenerateStub<HttpSessionStateBase>();
+									   
+	httpContext.Stub(h => h.Session).Return(httpSession);
+	mock.Setup(p => p.HttpContext.Session).Returns(mockSession.Object);
+
+	// Now create the system under test
+	var repository = MockRepository.GenerateMock<Repository>();
+	var controller = new CustomerController(repository);
+	var controller.ControllerContext = new ControllerContext(httpContext, new RouteData(), _controller);
+ 
+	controller.Create();
+
+	// Assertions
+	Assert.AreEqual("testuser1", controller.HttpContext.Session["Username"]);
+}
+```

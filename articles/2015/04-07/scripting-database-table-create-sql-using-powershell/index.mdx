@@ -1,0 +1,128 @@
+---
+title: "Scripting Database Table Create SQL using Powershell"
+date: "2015-04-07"
+slug: "scripting-database-table-create-sql-using-powershell"
+tags: ["Powershell"]
+---
+
+PowerShell is quite high on my list of languages that I dip in and out of without really knowing nearly well enough. One of things that I have found myself doing quite regularly is trying to script SQL for creating tables. This is quite straight forward using [Sql Server PowerShell](https://technet.microsoft.com/en-us/library/cc281954%28v=sql.105%29.aspx)
+
+### A simple Example
+
+First up we need to register the appropriate snapins and set the [execution policy](https://technet.microsoft.com/en-us/library/hh849812.aspx): 
+```powershell
+set-executionpolicy remotesigned
+add-pssnapin sqlserverprovidersnapin100
+add-pssnapin sqlservercmdletsnapin100
+```
+Next we create the Sql Server path to use. Using a a few variables makes it more explicit: 
+```powershell
+$server = "localhost";
+$instance = "Default";
+$database = "timesheets";
+
+$path = "sqlserver:\sql\$server\$instance\databases\$database\tables";
+```
+And finally, we can call the Get-ChildItem command passing our Sql Server PowerShell path. This will load all the tables into the tableset variable. 
+```powershell
+$tableset = get-childitem $path -ErrorAction stop
+```
+We can now loop round the collection of tables and perform actions on them:
+```powershell
+foreach ($table in $tableset) 
+{ 
+  write-host $table.name
+}
+```
+  
+
+### Printing a tables Create Sql
+
+Now that we have the basic idea, a more full example:
+```powershell
+# The file that the script is written to
+$file = "C:\scripts\ps\department.sql"
+
+# declare variables and create path
+$server = "localhost";
+$instance = "default";
+$database = "timesheet";
+$path = "sqlserver:\sql\$server\$instance\databases\$database\tables" ;
+
+# filter down to a particular table
+$tableName = "department";
+
+$tableset = get-childitem $path -ErrorAction stop | where-object {$_.name -eq $tableName}  ;
+$options = New-Object Microsoft.SqlServer.Management.Smo.ScriptingOptions ($srv);
+$options.DriAllConstraints = $TRUE;
+
+# We have filtered to a specified table, now script it   
+$script = $tableset[0].script($options);      
+
+#output the table to $file and console
+write-host $script
+$script | out-file $file -append -ErrorAction stop 
+"GO" | out-file $file -append
+```
+  
+This script prints out a script to the specified file: C:\\scripts\\ps\\department.sql using the sql server management objects.
+
+### Printing all tables Create Sql
+
+Well, the previous example is almost useful, but in reality we would want to print out all tables in a database and save them probably in their own file...
+```powershell
+#  declare variables and create path
+$server = "localhost";
+$instance = "default";
+$database = "timesheet";
+$path = "sqlserver:\sql\$server\$instance\databases\$database\tables" ;
+
+# We still have a filter, kind of..
+$tables = "*";
+
+# The output directory for our scripts
+$outputdir= "C:\SCRIPTS";
+  
+# Do a bit more with the options
+$tableset = get-childitem $path -ErrorAction stop | where-object {$_.displayname -like $tables}  ;
+$options = New-Object Microsoft.SqlServer.Management.Smo.ScriptingOptions ($srv);
+$options.NoCollation = $TRUE;
+$options.DriPrimaryKey = $TRUE;
+$options.DriAllConstraints = $TRUE;
+
+# We do some tidying up using regexs
+$regex1 = "SET[\s\w]*ON";                                            # remove the SET statments from the top
+$regex2 = "WITH\s\(PAD_INDEX[\w\s\)\(\[\]=,]*ON\s\[PRIMARY\]";       # remove the defaults from PK
+$regex3 = "ALTER TABLE\s[\.\w\[\]]*\sCHECK\sCONSTRAINT\s\[\w+\]";    # remove ALTER TABLE ... CHECK CONSTRAINT COMMANDS
+$script = "";
+$outputfilepath = "";
+
+# Remove Current Files
+Remove-Item $outputdir\*.sql
+
+# script each table 
+write-host "Writing files:"
+foreach ($table in $tableset) 
+{       
+  $outputfilepath = $outputdir + "\" +  $table.name + ".sql"  
+  write-host $outputfilepath
+  
+  $script = $table.script($options); 
+  
+  # Split the ALTER TABLE statments to a new line.
+  $script = [regex]::replace($script, "ALTER TABLE", "
+ALTER TABLE");
+  # Remove the set options
+  $script = [regex]::replace($script, $regex1, "");
+  # Remove the unwanted PK settings and replace with required FK build token
+  $script = [regex]::replace($script, $regex2, ") 
+  
+-- FOREIGN KEY CONSTRAINTS");
+  # Next we remove ALTER TABLE ... CHECK CONSTRAINT commands.
+  $script = [regex]::replace($script, $regex3, "");
+  
+  $script | out-file $outputfilepath;  
+}
+```
+  
+First thing to note is that the script empties the ouput directory of all sql files, so be careful where you run it. Other than that, its building on the previous example by printing out each table to its own sql file. This example uses regexs to do some tidying up of the Sql generated. Although it may seem a little crazy, its actually putting the Sql into the format required for my old works database.

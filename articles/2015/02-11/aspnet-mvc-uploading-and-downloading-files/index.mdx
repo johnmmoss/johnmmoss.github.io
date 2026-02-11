@@ -1,0 +1,84 @@
+---
+title: "ASP.NET MVC Uploading and Downloading Files"
+date: "2015-02-11"
+slug: "aspnet-mvc-uploading-and-downloading-files"
+tags: ["ASP.NET MVC"]
+---
+
+Uploading files is pretty straight forward with ASP.NET MVC 5, but there are few things to be aware of to make things go a bit smoother.  
+
+## Razor View
+
+The view needs to have the enctype set as shown below. Also, if you are using the TextFor HtmlHelper, make sure you set the File type of the control.  
+```text
+// The view needs to have the enctype set to multipart form data, also, TextBoxFor takes type of file
+ @using (Html.BeginForm("Statement", "Customer", FormMethod.Post, new { enctype = "multipart/form-data" }))
+ {
+	// Sample Razor
+	<div class="form-group">
+		@Html.LabelFor(m => m.CustomerStatementFile, new { @class = "control-label" })
+		<div class="col-sm-10">
+			@Html.TextBoxFor(m => m.CustomerStatementFile, new { @class = "form-control", type = "file" })
+		</div>
+	</div>
+}
+```
+  
+
+## Model and Controller Actions
+
+A simple model uses the HttpPostedFileBase to access the file. Below there are two controller actions which provide the mechanism to upload and download the customer statment:
+```csharp
+// Sample model uses HttpPostedFileBase to pass the file to the controller
+public class CustomerStatementModel
+{
+    public int Id { get; set; }
+    public string Description { get; set; }
+    public HttpPostedFileBase CustomerStatementFile { get; set; }
+}
+
+// POST:/Customer/Statement
+// To upload a customer statment post to this action
+[HttpPost]
+public async Task<ActionResult> Statement(CustomerStatementModel model)
+{
+    if (model.CustomerStatementFile.ContentType != "excel" || !model.CustomerStatementFile.FileName.EndsWith("xls"))
+    {
+        ModelState.AddModelError("CustomerStatementFile", "Must be excel");
+        return View();
+    }
+    var filePath = Path.Combine(FileServerPath, Path.GetFileName(model.CustomerStatementFile.FileName));
+    using (FileStream stream = System.IO.File.Create(filePath))
+    {
+        model.CustomerStatementFile.InputStream.Seek(0, SeekOrigin.Begin);
+        await model.CustomerStatementFile.InputStream.CopyToAsync(stream);
+        stream.Close();
+    }
+    return Redirect("Index");
+}
+
+// GET /Customer/Statement/2
+[HttpGet]
+public ActionResult Statement(int id)
+{
+    var customerFile = repository.GetCustomerStatementFile(id);
+
+    if (customerFile == null)
+    {
+        return HttpNotFound();
+    }
+
+    var filePath = Path.Combine(FileServerPath, customerFile.FileName);
+
+    if (!System.IO.File.Exists(filePath))
+    {
+        return HttpNotFound();
+    }
+
+    var mimeType = filePath.EndsWith(".xlsx") ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" : "application/vnd.ms-excel";
+
+    return File(filePath, mimeType, Path.GetFileName(filePath));
+}
+```
+  
+The file download makes use of the [Controller.File](https://msdn.microsoft.com/en-us/library/system.web.mvc.controller.file%28v=vs.118%29.aspx) method to return a FileContentResult. You can find out more information about the different ActionResult classes on msdn at [Controllers and Action Methods in ASP.NET MVC Applications](https://msdn.microsoft.com/en-GB/library/dd410269%28v=vs.100%29.aspx)

@@ -1,0 +1,42 @@
+---
+title: "Shrinking log files on SQL Server 2008 R2"
+date: "2015-12-09"
+slug: "shrinking-log-files-on-sql-server-2008-r2"
+tags: ["SQL Server"]
+---
+
+You know your having a bad day when you have to logon to a server to start running SHRINKFILE commands to free up disk space. Recently our Team City builds will start failing because an application API is down and when we track that through, we find that a Sql Server has run out of disk space. Doh! I should continue by saying that I only ever do this on DBs that are part of the development environments. I would think twice and then probably go ask someone anyway before running these in UAT or Live environments.
+
+### SQL Server Database Files
+
+Far to often the SQL Server data files (mdf) and the log files (ldf) grow to take up large amounts of space on the disk. We can empty the data by truncating the tables, or backing up the database, but this does not actually reduce the size of the files on disk - the same amount of space is still allocated.
+
+### Shrinking a file
+
+You can shrink a file using the appropriately named [SHRINKFILE](https://technet.microsoft.com/en-us/library/ms189493\(v=sql.105\).aspx) switch of the DBCC command.
+```sql
+USE AdeventureWorksDb
+
+-- Set the datbase into simple mode which will truncate the log and close any connections
+ALTER DATABASE AdeventureWorksDb
+SET RECOVERY Simple;
+GO
+
+-- Shrink the file
+DBCC SHRINKFILE('AdeventureWorksDb_Log')
+
+-- Return reocvery mode back to Full 
+ALTER DATABASE AdeventureWorksDb
+SET RECOVERY Full;
+GO
+```
+  
+
+### Links
+
+For more information its worth having a read through these links:
+
+-   [Recovery Models](https://msdn.microsoft.com/en-GB/library/ms189275.aspx)
+-   [Transation Log Truncation](https://technet.microsoft.com/en-us/library/ms189085\(v=sql.105\).aspx)
+-   [DBCC ShrinkFile](https://technet.microsoft.com/en-us/library/ms189493\(v=sql.105\).aspx)
+-   [How to Backup Transation Log](https://technet.microsoft.com/en-us/library/ms179478\(v=sql.105\).aspx)

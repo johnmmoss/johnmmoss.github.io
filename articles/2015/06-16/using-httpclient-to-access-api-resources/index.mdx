@@ -1,0 +1,24 @@
+---
+title: "Using HttpClient to access API resources"
+date: "2015-06-16"
+slug: "using-httpclient-to-access-api-resources"
+tags: ["C#", "ASP.NET"]
+---
+
+Oftentimes we will have the need to call into an API to load resources. [HttpClient](https://msdn.microsoft.com/en-us/library/system.net.http.httpclient\(v=vs.118\).aspx) class provides in the System.Net namespace provides all the required functionality to interact with an API in the usual ways. In the example below, we have a C# POCO called CustomerRequest which is used to encapsulate the data to be sent to the API. The API does some processing behind the scenes and then returns some Json using the [HttpResponseMessage](https://msdn.microsoft.com/en-us/library/system.net.http.httpresponsemessage\(v=vs.118\).aspx)'s Content property. The returned Json is deserialized into a CustomerResponse object ready for use by the calling method.
+```csharp
+using (var client = new HttpClient())
+{
+	var serializedBody = JsonConvert.SerializeObject(customerRequest);
+	
+	var url = string.Format("{0}/{1}", ConfigurationManager.AppSettings["API_URL"], "customer");
+	
+	var response = await client.PostAsync(url, new StringContent(serializedBody, Encoding.UTF8, "application/json"));
+	
+	var content = await response.Content.ReadAsStringAsync();
+	
+	return JsonConvert.DeserializeObject<CustomerResponse>(content);
+}
+```
+  
+Note the use of NewtonSoft's popular [Json.NET](http://www.newtonsoft.com/json) library to perform the serialization and deserialization of our classes.

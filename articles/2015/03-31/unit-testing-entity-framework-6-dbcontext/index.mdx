@@ -1,0 +1,107 @@
+---
+title: "Unit Testing Entity Framework 6 DbContext"
+date: "2015-03-31"
+slug: "unit-testing-entity-framework-6-dbcontext"
+tags: ["Entity Framework"]
+---
+
+The Entity Framework version 6 has good unit testing possibilities and the documentation provided by MSDN provides a good starting point...  
+
+-   [Testing with a mocking framework](https://msdn.microsoft.com/en-gb/data/dn314429)
+-   [Testing with your own test doubles](https://msdn.microsoft.com/en-gb/data/dn314431)
+
+  
+The main thing to remember is that you need to create a TestDbSet for each context property that is going to be used: 
+```csharp
+ITimesheetsContext _context = MockRepository.GenerateStub<ITimesheetsContext>();
+_context.Departments = new TestDbSet<Department>();
+_context.Timesheets = new TestDbSet<Timesheet>();
+_context.Employees = new TestDbSet<Employee>();
+_context.Stub(c => c.SaveChangesAsync()).Return(Task.FromResult(0));
+```
+Then you can add data to your Entities as per usual when setting up the in memory datastore: 
+```csharp
+context.Departments.Add(new Department() { Id = 1, Name = "Department 1" });
+context.Departments.Add(new Department() { Id = 2, Name = "Department 2" });
+context.Employees.Add(new Employee() { Id = 1, ForeName = "John" });
+context.Employees.Add(new Employee() { Id = 2, ForeName =  "Mark" });
+context.Employees.Add(new Employee() { Id = 3, ForeName =  "Mat" });
+```
+The MSDN documentation provides a TestDbSet class which provides a fake collection for the context properties (reproduced here for completeness):
+```csharp
+public class TestDbSet<TEntity> : DbSet<TEntity>, IQueryable, IEnumerable<TEntity>, IDbAsyncEnumerable<TEntity> 
+        where TEntity : class 
+{ 
+	ObservableCollection<TEntity> _data; 
+	IQueryable _query; 
+
+	public TestDbSet() 
+	{ 
+		_data = new ObservableCollection<TEntity>(); 
+		_query = _data.AsQueryable(); 
+	} 
+
+	public override TEntity Add(TEntity item) 
+	{ 
+		_data.Add(item); 
+		return item; 
+	} 
+
+	public override TEntity Remove(TEntity item) 
+	{ 
+		_data.Remove(item); 
+		return item; 
+	} 
+
+	public override TEntity Attach(TEntity item) 
+	{ 
+		_data.Add(item); 
+		return item; 
+	} 
+
+	public override TEntity Create() 
+	{ 
+		return Activator.CreateInstance<TEntity>(); 
+	} 
+
+	public override TDerivedEntity Create<TDerivedEntity>() 
+	{ 
+		return Activator.CreateInstance<TDerivedEntity>(); 
+	} 
+
+	public override ObservableCollection<TEntity> Local 
+	{ 
+		get { return _data; } 
+	} 
+
+	Type IQueryable.ElementType 
+	{ 
+		get { return _query.ElementType; } 
+	} 
+
+	Expression IQueryable.Expression 
+	{ 
+		get { return _query.Expression; } 
+	} 
+
+	IQueryProvider IQueryable.Provider 
+	{ 
+		get { return new TestDbAsyncQueryProvider<TEntity>(_query.Provider); } 
+	} 
+
+	System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() 
+	{ 
+		return _data.GetEnumerator(); 
+	} 
+
+	IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator() 
+	{ 
+		return _data.GetEnumerator(); 
+	} 
+
+	IDbAsyncEnumerator<TEntity> IDbAsyncEnumerable<TEntity>.GetAsyncEnumerator() 
+	{ 
+		return new TestDbAsyncEnumerator<TEntity>(_data.GetEnumerator()); 
+	} 
+}
+```

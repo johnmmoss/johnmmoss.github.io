@@ -1,0 +1,136 @@
+---
+title: "ActionResults in ASP.NET MVC 5"
+date: "2015-04-14"
+slug: "actionresults-in-aspnet-mvc-5"
+tags: ["ASP.NET MVC"]
+---
+
+In ASP.NET MVC 5 [ActionResult](https://msdn.microsoft.com/en-us/library/system.web.mvc.actionresult\(v=vs.118\).aspx) classes are used to return data from the controller classes to the views. There are **15** different sub classes that can be used in various situations depending on your scenario... Its usual to return the base class ActionResult, rather than a specific action result type because you may want to return different actions in different situations. The example below is actually the standard ASP.NET scaffolding for the edit entity framework model item.
+```csharp
+// GET: /Department/Edit/5
+public ActionResult Edit(int? id)
+{
+    if (id == null)
+    {
+        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+    }
+    Department department = _context.Departments.Find(id);
+    if (department == null)
+    {
+        return HttpNotFound();
+    }
+    return View(department);
+}
+```
+  
+Usually, when creating ActionResult objects, you use one of the Controller base class helper methods as shown above. There is a good overview of the methods available for each result type on the [ActionResult MSDN page](https://msdn.microsoft.com/en-us/library/system.web.mvc.actionresult\(v=vs.118\).aspx). Please note that a sample application containing demonstrations can be found at [github.com/johnmmoss](https://github.com/johnmmoss/MVC5SampleApp) and is also hosted on Appharbour at [mvcsampleapp.apphb.com](http://mvcsampleapp.apphb.com/)
+
+### Displaying a Page
+
+The [controller's View method](https://msdn.microsoft.com/en-us/library/system.web.mvc.controller.view\(v=vs.118\).aspx) can be used to create a [ViewResult](https://msdn.microsoft.com/en-us/library/system.web.mvc.viewresult\(v=vs.118\).aspx) which is returned by the executing action to display a page. By convention the name of the view that is loaded is the same as the name of the executing action, so the index controller method (or action) will map to the index view in the views folder. The example above demonstrates the basics. The Controller.View method provides overloads for passing a model to strongly typed views, and also for specifying the name of the view to load in case it differs from the executing actions name. The [PartialViewResult](https://msdn.microsoft.com/en-us/library/system.web.mvc.partialviewresult\(v=vs.118\).aspx) type is used to return markup without the layout page loaded around it. it has a corresponding This is most useful when using JavaScript from the browser to call back into the server.
+
+### Downloading Files
+
+When it comes to download files, the framework again provides a base [FileResult](https://msdn.microsoft.com/en-us/library/system.web.mvc.fileresult%28v=vs.118%29.aspx) class with some overloads. The three subsequent sub classes are:  
+
+-   FileContentResult 
+-   FilePathResult
+-   FileStreamResult
+
+So, [FileContentResult](https://msdn.microsoft.com/en-us/library/system.web.mvc.filecontentresult\(v=vs.118\).aspx) is used to return a file from a byte array, [FilePathResult](https://msdn.microsoft.com/en-us/library/system.web.mvc.filepathresult\(v=vs.118\).aspx) when you have a file on disk and you provide the path to it, and [FileStreamResult](https://msdn.microsoft.com/en-us/library/system.web.mvc.filestreamresult\(v=vs.118\).aspx) is used when you have a stream that you want to use to create the download file. You can instantiate the file result classes, but the [Controller.File](https://msdn.microsoft.com/en-us/library/dd492492%28v=vs.118%29.aspx) method provides a more convienant way to create file downloads:
+```csharp
+// /File/Stream
+public FileStreamResult Stream()
+{
+    var fileContent = new byte[] { Ascii.one, Ascii.Comma, Ascii.two, Ascii.Comma, Ascii.three };
+    var stream = new MemoryStream(fileContent);
+    var fileStreamResult = new FileStreamResult(stream, mimeType);
+    fileStreamResult.FileDownloadName = "FileStreamExample.csv";
+    return fileStreamResult;
+}
+
+// File/Stream2
+public FileStreamResult Stream2()
+{
+    byte[] fileContent = new[] { Ascii.one, Ascii.Comma, Ascii.two, Ascii.Comma, Ascii.three };
+
+    return File(new MemoryStream(fileContent), mimeType);
+}
+```
+  
+
+### Simple Actions
+
+There are a series of actions for returning simple types  
+
+-   EmptyResult
+-   ContentResult
+-   JsonResult
+-   JavascriptResult
+
+[EmptyResult](https://msdn.microsoft.com/en-us/library/system.web.mvc.emptyresult\(v=vs.118\).aspx) is useful to use when you are running async actions and dont actually have anything to return. Its an implementation of the Null object pattern. [ContentResult](https://msdn.microsoft.com/en-us/library/system.web.mvc.contentresult\(v=vs.118\).aspx) can be used to return any type of content to the user. As you can set the mime type, this type is really quite flexible, but because there are other types that cater for most common cases it actually doesnt get used that much. In the example below, the Content type is used to return first a simple Html page, and then a simple Xml document...
+```csharp
+
+public ContentResult Content()
+{
+	var content = new ContentResult();
+	content.Content = "<html><body bgcolor=\"red\"><p>This is my HTML content</body></html>";
+	content.ContentType = "text/html";
+	return content;
+
+}
+
+public ContentResult ContentXml()
+{
+	var content = new ContentResult();
+	content.Content = "<books><book>one</book><book>two</book></books>";
+	content.ContentType = "text/xml";
+	return content;
+}
+```
+  
+
+### Returning Http Status
+
+There are three types that can be used to directly return a http status:  
+
+-   HttpStatusCodeResult
+-   HttpNotFoundResult
+-   HttpUnauthorizedResult
+
+If you want to return a particular Http status code, you can use the [HttpStatusCodeResult](https://msdn.microsoft.com/en-us/library/system.web.mvc.httpstatuscoderesult\(v=vs.118\).aspx) class to return any status. The [HttpStatusCode enum](https://msdn.microsoft.com/en-us/library/system.net.httpstatuscode%28v=vs.110%29.aspx) is a useful type, which can be passed into the constructor. This result type does not actually have a Controller class helper method. 
+```csharp
+public HttpStatusCodeResult Unavailable()
+{
+	var status = HttpStatusCode.ServiceUnavailable;
+
+	var statusCode = new HttpStatusCodeResult(status);
+
+	return statusCode;
+}
+
+public HttpStatusCodeResult Found()
+{
+	var status = HttpStatusCode.Found;
+
+	var statusCode = new HttpStatusCodeResult(status);
+	
+	return statusCode;
+}
+```
+There are two specialized classes that sub class HttpStatusCodeResult. These are [HttpNotFoundResult](https://msdn.microsoft.com/en-us/library/system.web.mvc.httpnotfoundresult\(v=vs.118\).aspx) and [HttpUnauthorizedResult](https://msdn.microsoft.com/en-us/library/system.web.mvc.httpunauthorizedresult\(v=vs.118\).aspx). There is a [Controller.HttpNotFound](https://msdn.microsoft.com/en-us/library/system.web.mvc.controller.httpnotfound\(v=vs.118\).aspx) method which can be used to as a helper to create not found statuses, but unauthorized does not have one.
+```csharp
+public HttpNotFoundResult NotFound()
+{
+	var statusCode = new HttpNotFoundResult();
+	
+	return statusCode;
+}
+
+public HttpUnauthorizedResult Unauthorized()
+{
+	var statusCode = new HttpUnauthorizedResult();
+	
+	return statusCode;
+}
+```

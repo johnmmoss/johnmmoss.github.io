@@ -1,0 +1,80 @@
+---
+title: "Understanding the C# Linq SelectMany Operator"
+date: "2020-01-10"
+slug: "understanding-the-c-linq-selectmany-operator"
+tags: []
+---
+
+The Linq operator SelectMany has always confused me a bit, and yesterday I came across it in some code so had to actually try to understand it.  
+
+  
+
+Simple put, SelectMany selects out all children from a collection of parents in a one to many parent child relation ship. You can add an additional parameter which provides access to the parent and child. Theres a good explanation on [this stackoverflow answer](https://stackoverflow.com/a/959057). I wrote out the code in a console app (below) and it made a lot more sense:
+
+```csharp
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Running Select Many Sample...");
+
+            IEnumerable<Person> people = new List<Person>()
+            {
+                new Person()
+                {
+                    Name = "Wilma", PhoneNumbers = new List<PhoneNumber>()
+                    {
+                        new PhoneNumber() { Number = "777"},
+                        new PhoneNumber() { Number = "888"},
+                        new PhoneNumber() { Number = "999"}
+                    }
+                },
+                new Person()
+                {
+                    Name = "Bill", PhoneNumbers = new List<PhoneNumber>()
+                    {
+                        new PhoneNumber() { Number = "0191111111"}
+                    }
+                },
+                new Person() 
+                { 
+                    Name = "Fred", PhoneNumbers = new List<PhoneNumber>()
+                    {
+                        new PhoneNumber() { Number = "0131762475"},
+                        new PhoneNumber() { Number = "0789123456"}
+                    }
+                
+                }
+            };
+
+            Console.WriteLine("Select Many PhoneNumbers:");
+            var allPhoneNumbers = people.SelectMany(p => p.PhoneNumbers);
+            foreach (var phoneNumber in allPhoneNumbers)
+            {
+                Console.WriteLine(phoneNumber.Number);
+            }
+
+            Console.WriteLine("Select Many With parent:");
+            var directory = people.SelectMany(p => p.PhoneNumbers,
+                               (parent, child) => new { parent.Name, child.Number });
+
+            foreach( var item in directory)
+            {
+                Console.WriteLine($"{item.Name}:{item.Number}");
+            }
+            Console.WriteLine("Done!");
+            Console.ReadLine();
+        }
+    }
+    public class PhoneNumber
+    {
+        public string Number { get; set; }
+    }
+
+    public class Person
+    {
+        public IEnumerable<PhoneNumber> PhoneNumbers { get; set; }
+        public string Name { get; set; }
+    }
+}
+```

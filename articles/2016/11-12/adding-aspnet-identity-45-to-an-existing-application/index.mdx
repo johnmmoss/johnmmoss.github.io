@@ -1,0 +1,141 @@
+---
+title: "Adding ASP.NET Identity 4.5 to an Existing Application"
+date: "2016-11-12"
+slug: "adding-aspnet-identity-45-to-an-existing-application"
+tags: ["ASP.NET Identity", "ASP.NET"]
+---
+
+Watching videos about putting ASP.NET websites together, it always looks really nice and straight forward, it demos really well. Back at the office, faced with some real world requirements things never seem that simple. To this end I decided to try to setup the Identity framework from scratch on an existing web application. The following stackoverflow links explain this in detail, but as I implemented it myself on a test app I thought to document it here:
+
+-   [Adding ASP.NET MVC5 Identity Authentication to an existing project](http://stackoverflow.com/questions/31960433/adding-asp-net-mvc5-identity-authentication-to-an-existing-project)
+-   [How can I change the table names when using Visual Studio 2013 AspNet Identity](http://stackoverflow.com/questions/19460386/how-can-i-change-the-table-names-when-using-visual-studio-2013-aspnet-identity)
+-   [Introduction to ASP.NET Identity](https://www.asp.net/identity/overview/getting-started/introduction-to-aspnet-identity)
+
+### Install Packages
+
+  
+Step 1, install the necessary packages:    Install-Package Microsoft.AspNet.Identity.Owin  
+   Install-Package Microsoft.AspNet.Identity.EntityFramework  
+   Install-Package Microsoft.Owin.Host.SystemWeb  
+
+### Create Entities
+
+  
+
+The IdentityDbContext includes entities for Users and Roles but we can customize them by extending the builtin objects.
+
+  
+```csharp
+public class User : IdentityUser
+{
+}
+
+public class Role : IdentityRole
+{
+    public Role() : base() { }
+    public Role(string name) : base(name) { }
+}
+```
+  
+
+### Update Application EF Context
+
+  
+
+The three things to note here are:  
+
+1.  The context now extends the IdentityDbContext<User> context
+2.  The OnModelCreatingMethod renames the tables so they're not all prefixed with "AspNet"
+3.  The context connection is now passed in through the constructor, else it tries to use DefaultConnection.
+
+  
+
+```csharp
+public class TimesheetsContext : IdentityDbContext<User> , ITimesheetsContext
+{
+    public IDbSet<Employee> Employees { get; set; }
+    public IDbSet<Department> Departments { get; set; }
+    public IDbSet<TimeCode> TimeCodes { get; set; }
+    public IDbSet<Timesheet> Timesheets { get; set; }
+
+    public TimesheetsContext()
+        : base("TimesheetsContext")
+    {
+
+    }
+
+    protected override void OnModelCreating(DbModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<IdentityUser>().ToTable("Users").Property(p => p.Id).HasColumnName("UserId");
+        modelBuilder.Entity<User>().ToTable("Users").Property(p => p.Id).HasColumnName("UserId");
+        modelBuilder.Entity<IdentityUserRole>().ToTable("UserRoles");
+        modelBuilder.Entity<IdentityUserLogin>().ToTable("UserLogins");
+        modelBuilder.Entity<IdentityUserClaim>().ToTable("UserClaims");
+        modelBuilder.Entity<IdentityRole>().ToTable("Roles");
+    }
+}
+```
+  
+
+### Create a UserManager
+
+  
+Its not required to create a UserManager, but it does provide us with the option to customise the setup:  
+```csharp
+public class UserManager : UserManager<User>
+{
+    public UserManager(IUserStore<User> store)
+        : base(store)
+    {
+    }
+
+    // This method is called by Owin therefore best place to configure your User Manager
+    public static UserManager Create(
+        IdentityFactoryOptions<UserManager> options, IOwinContext context)
+    {
+        var manager = new UserManager(
+            new UserStore<User>(context.Get<TimesheetsContext>()));
+
+        // Configure your manager ...
+
+        return manager;
+    }
+}
+```
+  
+
+### Add Owin Configuration
+
+  
+
+The Identity classes uses Owin, so we need to setup the configuration for the Identity owing provider.
+
+  
+```csharp
+public class IdentityConfig
+{
+    public void Configuration(IAppBuilder app)
+    {
+        app.CreatePerOwinContext(() => new TimesheetsContext());
+        app.CreatePerOwinContext<UserManager>(UserManager.Create);
+        app.CreatePerOwinContext<RoleManager<Role>>((options, context) =>
+            new RoleManager<Role>(
+                new RoleStore<Role>(context.Get<TimesheetsContext>())));
+
+        app.UseCookieAuthentication(new CookieAuthenticationOptions
+        {
+            AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
+            LoginPath = new PathString("/Home/Login"),
+        });
+    }
+}
+```
+  
+
+### And finally
+
+  
+
+Once all setup, and if automatic migrations aren't turned on, then you need to run Add-migration and Update-database to create a migration and run it againest your database.

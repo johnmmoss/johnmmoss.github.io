@@ -1,0 +1,70 @@
+---
+title: "JavaScript Property Descriptors"
+date: "2016-07-08"
+slug: "javascript-property-descriptors"
+tags: ["JavaScript"]
+---
+
+In a previous post, I mentioned how a JavaScript object can be thought of simply as a collection of properties. But a property in JavaScript is more than just a value - property’s themselves have… well properties. The properties of our object properties are called descriptors in JavaScript and can be viewed using the Object method's getOwnPropertyDescriptor. The returned descriptor object has the following:  
+
+-   value
+-   writable
+-   enumerable
+-   configurable 
+
+These descriptor properties are essentially metadata about the property in question.
+
+### Changing a Property Descriptor's Value
+
+You can use the defineProperty method to change the value of a properties descriptor, and as you would probably expect, changing the value of a descriptor changes the behaviour of the property in some way.
+```javascript
+// JavaScript object is a collection of properties
+var cat = { name: 'Felix', color:'blue' }
+
+// We can get descriptor infomation out, descriptors returns:
+//  Object {value: "phil", writable: true, enumerable: true, configurable: true}
+var descriptors = Object. getOwnPropertyDescriptor(cat, 'name')
+
+// We can change the properties of an object using defineProperty:
+Object.defineProperty(cat, ‘name’, {writable: false})
+```
+  
+
+### Writable Descriptor
+
+If you set the writable to false, then as you would expect its not possible to write to that particular property. However, there are a few caveats to be a ware of:  
+
+1.  If that property is an object then you can still update properties of that object, for example cat.first.name = "Scratchy" will still assign scratchy to the name property of the first object. In-order to prevent this, use Object.freeze(cat.name) - now the whole property is fixed.
+2.  An error will only be thrown if you are using strict mode, if you are not then it will actually just fail silently.
+
+  
+
+### Enumerable Descriptor
+
+When the enumerable descriptor is set to false, it will not be possible to enumerate the object. Its worth baring in mind that setting an object's property to not be enumerable will also cause it to not be serialized as part of a json object.
+
+### Configurable Descriptor
+
+By setting the Configurable descriptor to false we lock down an object to stop attributes from being changed or deleted:    Object.defineProperty(cat, ‘name’, { configurable: false })  
+  
+If we now cannot change the enumerable descriptor – the following will raise an error:    Object.defineProperty(cat, ‘name’, { enumerable: false }) Note that once we have made a property non-configurable then we will not be able to make it configurable again – this will raise an error. However it is still possible to change value of the writable descriptor. Finally, a non-configurable proeprty cannot be deleted. Typically you can delete a property from an object using delete cat.name but if configurable is set to false for the property being deleted then instead error will get raised.  
+```javascript
+var cat = { name: 'Felix', color:'blue' }
+
+// We can view the properties in the object by simply looping through:
+for(var property in cat) {
+    document.write(key + ": " + cat[property] + ";"); // name: Felix; color:blue;
+}
+
+// Now we set enumerable to false
+Object.defineProperty(cat, ‘name’, {ennumerable: false})
+
+// name does not get ennumerated
+for(var property in cat) {
+    document.write(key + ": " + cat[property] + ";"); // color:blue;
+}
+
+// We can use the keys object to access an array of the keys
+//  Returns ['name', 'color']
+Object.keys(cat)
+```

@@ -1,0 +1,89 @@
+---
+title: "MVC Unit Testing Asserts with Rhino Mocks"
+date: "2015-02-13"
+slug: "mvc-unit-testing-asserts-with-rhino-mocks"
+tags: ["ASP.NET MVC", "Rhino Mocks", "Unit Tests"]
+---
+
+When I first started learning to use mocking frameworks I was lucky enough to start on Moq which was nice and simple. Whenever I needed to know something there was one single google code page which told everything. Nice! Rhino Mock by example I find hard work, so I put this cheat sheet together to help get up and running quickly.  
+
+## Rhino Mock Asserts
+
+```csharp
+public void RhinoMockExampleAsserts()
+{				
+	// Example assert _principal.IsInRole(..) wasn't called
+	_principal.AssertWasNotCalled(x => x.IsInRole(Arg<string>.Is.Anything))
+	
+	// Assert API call was made
+	_apiClient.AssertWasCalled(x => x.GetCustomerStatement(Arg<int>.Is.Anything));
+	
+	// Assert API call was made with a specific ID
+	_apiClient.AssertWasCalled(x => x.GetCustomerStatement(Arg<int>.Is.Equal(200));
+	
+	// Was called 3 times
+	_principal.AssertWasCalled(x => x.IsInRole(Arg<string>.Is.Anything), x => x.Repeat.Times(3));
+
+	// Was called once
+	_principal.AssertWasCalled(x => x.IsInRole(Arg<string>.Is.Equal(usersGroup)), x => x.Repeat.Once());
+	
+	// Accessing parameters from a called method using Rhino Mock
+	// _sessionTokenWriter.WriteSessionTokenToCookie(ClaimsPrincipal cp)
+	var mockArgs = _mockSessionTokenWriter
+	                .GetArgumentsForCallsMadeOn(
+	                    x => x.WriteSessionTokenToCookie(Arg<ClaimsPrincipal>.Is.Anything),
+	                    x => x.IgnoreArguments());	// setupConstraints(?) is of type Action<IMethodOptions<object>>
+
+	// mockArgs is IList<object[]> a list of arrays. 
+	// Where mock[i][n] where i is number of calls? And n is the nth parameter in that call?
+	var claims = (mockArgs[0][0] as ClaimsPrincipal).Claims;
+}
+```
+  
+
+## MVC Asserts
+
+```csharp
+public void ExampleMvcAsserts()
+{                      
+	// Setup an error in the model so that ModelState.IsValid returns false.
+	// Used to check that the ModelState.IsValid check is in place.
+	controller.ViewData.ModelState.AddModelError("Surname", "The Surname field is required.");
+   
+	// Call the controller method. This usually returns an ActionResult, which may need to be cast.
+	var result = _userController.Create(user).Result;
+   
+	// Assert that the redirect result is of a particular type
+	Assert.That(result, Is.TypeOf<RedirectToRouteResult>());           
+   
+	// Assert that the controller redirects to the correct view
+	Assert.AreEqual("Index", ((RedirectToRouteResult)result).RouteValues["action"]);
+   
+	// Check manaully added model state errors
+	Assert.IsTrue(controller.ModelState.Keys.Contains("Email"));
+	Assert.AreEqual("The Email address is already in use.", controller.ModelState["Email"].Errors[0].ErrorMessage);
+						   
+	// Check the model class is returned correctly in the view.
+	var userModel = viewResult.Model as User;
+	Assert.AreEqual(userModel.Forename, "John");
+}
+```
+  
+
+## Aysnc Considerations
+
+```csharp
+public void AsyncExamples()
+{
+	// Async controller actions have to be called asyn:
+	await controller.Create(model);
+   
+	// Async methods return a task, so use Task.FromResult:
+	_apiClient.Stub(x => x.GetCustomersAsync(Arg<long>.Is.Anything))
+				.Return(Task.FromResult(new List<Customer>()));
+									   
+	// If the method returns just Task and not Task<T> use true/null/1:
+	_file.Stub(x => x.SavePostedFile(Arg<HttpPostedFileBase>.Is.Anything))
+				.Return(Task.FromResult(true));
+}
+```

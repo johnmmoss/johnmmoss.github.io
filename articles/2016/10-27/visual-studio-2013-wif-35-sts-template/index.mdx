@@ -1,0 +1,35 @@
+---
+title: "Visual Studio 2013 WIF 3.5 STS Template"
+date: "2016-10-27"
+slug: "visual-studio-2013-wif-35-sts-template"
+tags: ["ASP.NET Identity", "Visual Studio"]
+---
+
+The Windows Identity Foundation (WIF) 3.5 provided some Visual Studio templates to create a Secure Token Service (STS.) Unfortunately these were not available in Visual Studio 2013 and also, they actually created a Web Site rather than a Web Application. I wanted to create an STS using these templates, so I added the templates into Visual Studio and created a new Web Application copied the files across and exported a new template. Its available on GitHub:
+
+-   [Visual Studio 2013 WIF 3.5 STS Web Application Template](https://github.com/johnmmoss/WifStsApplication/raw/master/ProjectTemplates/Wif%20Sts%20Web%20Application.zip)
+
+  
+Please note this is a WIF 3.5 template from the WIF 3.5 SDK. See below on more information.
+
+-   [MSDN: Guidelines for migrating an Application Built Using WIF 3.5 TO WIF 4.5](https://msdn.microsoft.com/en-us/library/jj157089\(v=vs.110\).aspx)
+
+The steps to convert the template to a web application went a little something like this:
+
+1.  Created a website from the WIF 3.5 template
+2.  Created a new empty visual studio web application project
+3.  Copied the App\_Code folder ascross and renamed to Core
+4.  Set the Build Action on each of the files in core to be "Compile"
+5.  Used nuget to install Microsoft.Identity package
+6.  Added new aspx files for Login and Default, because the designer file was missing  
+
+  
+I only did the Web Application template, but I will get round to the claims aware website and probably the WCF templates at some point. I uploaded all the templates from the WIF 3.5 SDK for safe keeping:
+
+-   [ASP.NET Relying Party Application](https://github.com/johnmmoss/WifStsApplication/raw/master/ProjectTemplates/VsProjectTemplates/csClaimsAwareASPNETSite.zip)
+-   [WCF Relying Party Application](https://github.com/johnmmoss/WifStsApplication/raw/master/ProjectTemplates/VsProjectTemplates/csClaimsAwareWCFSite.zip)
+-   [ASP.NET STS](https://github.com/johnmmoss/WifStsApplication/raw/master/ProjectTemplates/VsProjectTemplates/csSTSASPNETSite.zip)
+-   [WCF STS](https://github.com/johnmmoss/WifStsApplication/raw/master/ProjectTemplates/VsProjectTemplates/csSTSWCFSite.zip)
+
+  
+With thanks to Hans Kindberg: [Use the WIF SDK site templates in Visual Studio 2013](https://hanskindberg.wordpress.com/2014/02/25/use-the-wif-sdk-site-templates-in-visual-studio-2013/)

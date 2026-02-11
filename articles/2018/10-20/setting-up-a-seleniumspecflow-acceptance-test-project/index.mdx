@@ -1,0 +1,230 @@
+---
+title: "Setting up a Selenium/Specflow Acceptance Test Project"
+date: "2018-10-20"
+slug: "setting-up-a-seleniumspecflow-acceptance-test-project"
+tags: ["Acceptance Tests", "Selenium"]
+---
+
+I really appreciate the value in using Selenium and Specflow to write a suite of browser based tests to validate a software application. These tests unequivocally confirm that the acceptance criteria is met and the application functions as desired. I wrote a post about a nice way to think of these Acceptance Tests as three different layers for the features calling into the steps and the steps using the page objects, but its not really a good walk though for actually setting up the project... so here goes....!
+
+### Installing Specflow Extension
+
+Before we begin, make sure you install the Specflow Extension from the Tools -> Extensions menu. This provides the specflow feature file types, context menus and syntax highlighting for the feature files.
+
+### Creating the Project
+
+Start by creating a C# class library. I tend to suffix the project name with AcceptanceTest so something like _Web.AcceptanceTest_.
+
+### Installing Specflow
+
+Specflow is a .Net implementation of Cucumber. It provides the Given/Then/When syntax in feature files which compile into NUnit test cases. We can install Specflow opening the package manager console and executing:    Install-Package SpecFlow.NUnit  
+   Install-Package NUnit3TestAdapter Now we can add a feature file and write some Cucumber statements:  
+
+-   Add a specflow feature file to the project by right clicking the _Web.AcceptanceTest_ project and going to Add -> New Item and select _Specflow Feature File_.
+-   Copy in the following lines: 
+
+```gherkin
+Feature: UserAdmin
+	In order to use the site
+	As an employee
+	I want to be able to register and login to the site
+
+Scenario: A valid user can login to the site
+	Given I am a valid user of the site
+	And I have navigated to the login page
+	And I have entered a username of "johndoe" and a password of "Password1!"
+	When I click the create button
+	Then I am logged in to the site
+```
+
+-   Right click the steps and select Generate Step Definition and click save on the pop up. I move the steps file into a steps folder to keep things tidy.
+
+Now you can debug the tests using Microsoft test explorer and set a break point in the first step. Navigation from the feature file (using F12 for example) will work thanks to the Specflow extension we installed. Note that initially the scenarios are all pending so the test will be inconclusive.
+
+### Installing Selenium
+
+We install the selenium package so that we can drive the browser. We also need to install a browser driver. In this example I use Chrome, but there are also drivers for IE and Firefox.
+
+  
+
+   Install-Package Selenium.WebDriver
+
+   Install-Package Selenium.WebDriver.ChromeDriver
+
+  
+
+We use a Specflow "hooks" file to setup the webdriver and store it in the FeatureContext. Store the url of the website we are testing as a config value in the AppSettings of the App.Config.
+
+-   Right click the project file and go to Add -> New Item, select Specflow Hooks and name the class Setup.cs - this is a bit more descriptive than the default.
+-   Copy the following code into the Setup.cs file:
+
+```csharp
+private static string websiteUrl = ConfigurationSettings.AppSettings["WebSiteUrl"];
+
+[BeforeFeature]
+public static void BeforeFeature()
+{
+    IWebDriver driver = new ChromeDriver();
+    FeatureContext.Current.Set(driver);
+    driver.Navigate().GoToUrl(websiteUrl);
+}
+
+[AfterFeature]
+public static void AfterFeature()
+{
+    // Clear up the webdriver
+    var webDriver = FeatureContext.Current.Get<IWebDriver>();
+    webDriver.Quit();
+    webDriver.Dispose();
+}
+```
+
+-   Add a WebsiteUrl config setting with the url of the site being tested into the App.Config
+
+Now if you run the test the browser will open and navigate to the url specified in the config file. If you are using IIS Express then highlight the web project in Solution Explorer and type Ctl+F5 this will start the site in none debug mode. Note that we haven't implemented the steps yet, so the test is still currently inconclusive.
+
+### Writing Page Objects
+
+The page object pattern is a great way to abstract the way your page is driven using selenium from the steps that implement the Specflow scenarios. Each page has an object which provides methods and properties mirroring the behaviour of the page.
+
+1.  Create a new folder called Pages and add a new class called _HomePage.cs_ and another called _LoginPage.cs_
+2.  Paste the following code into the respective classes:
+
+```csharp
+public class HomePage
+{
+    private readonly IWebDriver webDriver;
+
+    public HomePage(IWebDriver webDriver)
+    {
+        this.webDriver = webDriver;
+    }
+
+    public LoginPage ClickLoginLink()
+    {
+        var loginLink = webDriver.FindElement(By.Id("LoginLink"));
+        loginLink.Click();
+        return new LoginPage(webDriver);
+    }
+
+    public bool IsLoggedIn()
+    {
+        return webDriver.FindElement(By.Id("LogoutLink")).Displayed;
+    }
+}
+
+public class LoginPage
+{
+    private readonly IWebDriver webDriver;
+
+    public LoginPage(IWebDriver webDriver)
+    {
+        this.webDriver = webDriver;
+    }
+
+    public void EnterUsername(string username)
+    {
+        webDriver.FindElement(By.Id("Username")).SendKeys(username);
+    }
+
+    public void EnterPassword(string password)
+    {
+        webDriver.FindElement(By.Id("Password")).SendKeys(password);
+    }
+
+    public void ClickLogin()
+    {
+        webDriver.FindElement(By.Id("Login")).Click();
+    }
+}
+```
+
+  
+
+### Setting up the Specflow Scenarios
+
+Before we can implement the scenarios using the page objects above, we need to initialise the scenario in a similar way to how we initialised the feature.
+
+1.  Open the Step.cs file created earlier
+2.  Copy in the following code:
+
+```csharp
+  [BeforeScenario]
+  public void BeforeScenario()
+  {
+      // At the begining of the scenario, we are on the homepage
+      var webDriver = FeatureContext.Current.Get<IWebDriver>();
+      var homePage = new HomePage(webDriver);
+      ScenarioContext.Current.Set<HomePage>(homePage);
+  }
+```
+
+So, we are getting the selenium webdriver out of the _FeatureContext_, initialising a new _HomePage_ object and storing that in the _ScenarioContext_ ready for the test that is about to run.
+
+### Implementing the Specflow Scenarios
+
+Now everything is setup to implement the steps in the scenario. To implement the steps, we follow a similar pattern as above, loading the page objects out of the _ScenarioContext_ and then calling the appropriate methods to drive the browser.
+
+  
+
+Notice that the final step includes an assert. We expose out some part of the page (in this instance the Logout link) to determine if the page is displaying the correct values in the correct way. We can be quite prescriptive here making sure that the correct text, buttons and images are displayed as required.
+
+  
+```csharp
+[Binding]
+public class UserAdminSteps
+{
+    [Given(@"I am a valid user of the site")]
+    public void GivenIAmAValidUserOfTheSite()
+    {
+    }
+
+    [Given(@"I have navigated to the login page")]
+    public void GivenIHaveNavigatedToTheLoginPage()
+    {
+        var homePage = ScenarioContext.Current.Get<HomePage>();
+        var loginPage = homePage.ClickLoginLink();
+        ScenarioContext.Current.Set(loginPage);
+    }
+
+    [Given(@"I have entered a username of ""(.*)"" and a password of ""(.*)""")]
+    public void GivenIHaveEnteredAUsernameOfAndAPasswordOf(string username, string password)
+    {
+        var loginPage = ScenarioContext.Current.Get<LoginPage>();
+        loginPage.EnterUsername(username);
+        loginPage.EnterPassword(password);
+    }
+
+    [When(@"I click the create button")]
+    public void WhenIClickTheCreateButton()
+    {
+        var loginPage = ScenarioContext.Current.Get<LoginPage>();
+        loginPage.ClickLogin();
+    }
+
+    [Then(@"I am logged in to the site")]
+    public void ThenIAmLoggedInToTheSite()
+    {
+        var homePage = ScenarioContext.Current.Get<HomePage>();
+
+        Assert.IsTrue(homePage.IsLoggedIn());
+    }
+}
+```
+  
+
+### Example Template
+
+I exported my example as a template from Visual Stdio 2017. [Download the zip](https://github.com/johnmmoss/Scrapbook/blob/master/VisualStudio/Web.AcceptanceTests.zip?raw=true) and copy it to your Visual Studio Templates folder, usually something like: 
+
+  
+
+   C:\\Users\\Username\\Documents\\Visual Studio 2017\\Templates\\ProjectTemplates
+
+  
+
+This will provide a good starting point for creating your own tests.
+
+### Conclusion
+
+This tutorial provides a good starting point for creating automated acceptance tests using Specflow and Selenium. There are a few more things to consider though as the test suite grows around a real production system. Managing data for the tests, dealing with timeouts and JavaScript DOM manipulations are all quite difficult problems to solve. I will deal with some approaches to these issues in future posts.
