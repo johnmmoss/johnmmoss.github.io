@@ -44,7 +44,7 @@ public class Role : IdentityRole
 
 The three things to note here are:  
 
-1.  The context now extends the IdentityDbContext<User> context
+1.  The context now extends the IdentityDbContext\<User\> context
 2.  The OnModelCreatingMethod renames the tables so they're not all prefixed with "AspNet"
 3.  The context connection is now passed in through the constructor, else it tries to use DefaultConnection.
 
