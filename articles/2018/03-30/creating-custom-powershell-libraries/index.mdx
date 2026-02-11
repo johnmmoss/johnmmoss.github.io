@@ -49,8 +49,8 @@ The module will be displayed in the list:
 
 ### Creating a Module Manifest
 
-You will notice in the above screenshot that the version is set to 0.0. In order to set this and other metadata you can create a module manifest. The module manifest is an array of data in a seperate psd1 file with the same name as the module. You can create one using the following cmdlet: New-ModuleManifest -Path '<path-to-manifest>.psd1'   
-          -RootModule '<module-name>.psm1' -Author 'me' Here's an example for our Greetings.psm1
+You will notice in the above screenshot that the version is set to 0.0. In order to set this and other metadata you can create a module manifest. The module manifest is an array of data in a seperate psd1 file with the same name as the module. You can create one using the following cmdlet: New-ModuleManifest -Path '\<path-to-manifest\>.psd1'  
+ -RootModule '\<module-name\>.psm1' -Author 'me' Here's an example for our Greetings.psm1
 
 ```powershell
 New-ModuleManifest -Path "C:\Program Files\WindowsPowerShell\Modules\Greetings\Greetings.psd1"
