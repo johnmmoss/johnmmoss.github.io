@@ -8,15 +8,14 @@ tags: []
 
 The Soluto Github organisation has wrapped up IdentityServer4 in a docker image which can be used to provide an OAuth2 and OIDC standards compliant server for development and testing scenarios.
 
-* [oidc-server-mock](https://github.com/Soluto/oidc-server-mock)
-    
+- [oidc-server-mock](https://github.com/Soluto/oidc-server-mock)
 
 ## Getting Started
 
 The following docker compose file can be used to setup a standard configuration for IdentityServer4. Copy this YAML to a local file `docker-compose.yml`:
 
 ```yaml
-version: '3.4'
+version: "3.4"
 
 services:
   oidc-server:
@@ -64,47 +63,36 @@ The above YAML references a JSON file which provides client configuration inform
 
 ```json
 [
+  {
+    "ClientId": "mft-api-dev",
+    "Description": "Mock OIDC for running Identity Server locally",
+    "AllowedGrantTypes": [
+      "authorization_code",
+      "client_credentials",
+      "password"
+    ],
+    "AllowAccessTokensViaBrowser": false,
+    "RequirePkce": true,
+    "RedirectUris": ["http://localhost:3000"],
+    "AllowedScopes": ["openid", "profile", "email", "mft_api"],
+    "RequireClientSecret": false,
+    "ClientSecrets": ["MyMFTSecret"],
+    "IdentityTokenLifetime": 3600,
+    "AccessTokenLifetime": 3600,
+    "Claims": [
       {
-            "ClientId": "mft-api-dev",
-            "Description": "Mock OIDC for running Identity Server locally",
-            "AllowedGrantTypes": [
-                  "authorization_code",
-                  "client_credentials",
-                  "password"
-            ],
-            "AllowAccessTokensViaBrowser": false,
-            "RequirePkce": true,
-            "RedirectUris": [
-                  "http://localhost:3000"
-            ],
-            "AllowedScopes": [
-                  "openid",
-                  "profile",
-                  "email",
-                  "mft_api"
-            ],
-            "RequireClientSecret": false,
-            "ClientSecrets": [
-                  "MyMFTSecret"
-            ],
-            "IdentityTokenLifetime": 3600,
-            "AccessTokenLifetime": 3600,
-            "Claims": [
-                  {
-                        "Type": "aud",
-                        "Value": "mft_api"
-                  }
-            ]
+        "Type": "aud",
+        "Value": "mft_api"
       }
+    ]
+  }
 ]
 ```
 
 **Notes**
 
-* The [IdentityServer4 Client](https://identityserver4.readthedocs.io/en/latest/reference/client.html) documents explain what which each property does.
-    
-* By default `RequirePkce` is `true` set this value to `false` to enable the simpler [Authorization Code](https://developer.okta.com/blog/2018/04/10/oauth-authorization-code-grant-type) flow.
-    
+- The [IdentityServer4 Client](https://identityserver4.readthedocs.io/en/latest/reference/client.html) documents explain what which each property does.
+- By default `RequirePkce` is `true` set this value to `false` to enable the simpler [Authorization Code](https://developer.okta.com/blog/2018/04/10/oauth-authorization-code-grant-type) flow.
 
 ## Configuring HTTPS
 
@@ -120,7 +108,7 @@ dotnet dev-certs https -v -ep "$HOME/.aspnet/https/aspnetapp.pfx" -p password
 
 With the config file saved to `oidc-mock/config.json`, the `docker-compose.yml` in the root directory and the certificate created we are now ready to run the `docker compose up` command to start IdentityServer4. On running the command the console will output the logs from the docker image:
 
-![](./setting-up-a-mock-oauth2oidc-server-with-identityserver4-and-docker-image-01.png align="center")
+![](./setting-up-a-mock-oauth2oidc-server-with-identityserver4-and-docker-image-01.png)
 
 ## Requesting a Token
 
@@ -137,10 +125,10 @@ grant_type=password&client_id=mft-api-dev&client_secret=MyMFTSecret&username=Joh
 
 Using Postman, the same request:
 
-![](./setting-up-a-mock-oauth2oidc-server-with-identityserver4-and-docker-image-02.png align="center")
+![](./setting-up-a-mock-oauth2oidc-server-with-identityserver4-and-docker-image-02.png)
 
 IdentityServer4 also has a web portal and by clicking the “Click here” link to see claims you can force a challenge and be redirected to the login screen. Enter the username `John` and the password `password` to authenticate:
 
-![](./setting-up-a-mock-oauth2oidc-server-with-identityserver4-and-docker-image-03.png align="center")
+![](./setting-up-a-mock-oauth2oidc-server-with-identityserver4-and-docker-image-03.png)
 
 IdentityServer4 is now setup and ready for the the configured clients to request tokens. Be sure to read the [IdentityServer4 documentation](https://identityserver4.readthedocs.io/en/latest/reference/options.html) to learn how to configure clients for your scenario.

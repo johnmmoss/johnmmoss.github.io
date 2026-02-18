@@ -14,11 +14,11 @@ When developing applications for clients we typically deploy through multiple en
 
 Below we can see the sidebar menu “Environments” on the far left of the screenshot is selected. I have added three environments for a sample Shopping List API: `ShoppingList - Local`, `ShoppoingList - QA` and `ShoppingList - Prod`. The Prod environment is selected and main window shows the Prod environments’ values:
 
-![](./3-tips-to-get-more-from-postman-image-01.png align="center")
+![](./3-tips-to-get-more-from-postman-image-01.png)
 
 When sending a request we select the environment using the dropdown in the top right of Postman as shown in the screenshot below. By changing the environment dropdown we can change the `API_URL` value and target the different environments for our deployed code:
 
-![](./3-tips-to-get-more-from-postman-image-02.png align="center")
+![](./3-tips-to-get-more-from-postman-image-02.png)
 
 This way we don’t need to create a collection for each deployed environment. We can have one collection of requests and use Postman’s Environments feature to essentially parameterise the requests for each deployed environment.
 
@@ -38,7 +38,7 @@ pm.environment.set("shopping_list_id", returnedId);
 
 In the above snippet we are reading the ID property from the returned response using the built-in `pm.response` object and setting the environment variable `shopping_list_id`. This script is entered into the Post-response tab of the Scripts menu:
 
-![](./3-tips-to-get-more-from-postman-image-03.png align="center")
+![](./3-tips-to-get-more-from-postman-image-03.png)
 
 When the above request was made the id value `68e827fb-1e6b-4ffb-b655-ae5e5a505524` was set in the `shopping_list_id` variable. This variable can then be referenced in subsequent requests to, for example add items to the shopping list.
 
@@ -48,30 +48,30 @@ The Post-response tab can actually do test assertions and even make further API 
 
 ```javascript
 pm.test("Status code is 200", function () {
-    pm.response.to.have.status(200);
+  pm.response.to.have.status(200);
 });
 
-let apiUrl = pm.environment.get("API_URL"); 
-let shoppingListId = pm.environment.get("shopping_list_id"); 
+let apiUrl = pm.environment.get("API_URL");
+let shoppingListId = pm.environment.get("shopping_list_id");
 let endpoint = `${apiUrl}/shoppinglist${shoppingListId}`;
 
-console.log(endpoint)
-console.log(shoppingListId)
+console.log(endpoint);
+console.log(shoppingListId);
 
 pm.sendRequest(endpoint, function (err, res) {
-    pm.test(`Shopping List [${shoppingListId}] was deleted`, function () {        
-        pm.expect(res.code).to.equal(404);
-    });
+  pm.test(`Shopping List [${shoppingListId}] was deleted`, function () {
+    pm.expect(res.code).to.equal(404);
+  });
 });
 
 pm.test("Response time is less than 200ms", function () {
-    pm.expect(pm.response.responseTime).to.be.below(200);
+  pm.expect(pm.response.responseTime).to.be.below(200);
 });
 ```
 
 In the code above we are reading some of the environment variables and making a request back to the API to confirm that the item was not found - a bit of a contrived example, but it does show the possibilities. When this request is run the results of the test assertions are displayed in the test results window:
 
-![](./3-tips-to-get-more-from-postman-image-04.png align="center")
+![](./3-tips-to-get-more-from-postman-image-04.png)
 
 ## 3\. Automated Testing Using Run Collection
 
@@ -79,15 +79,15 @@ We established in the previous step that we can use JavaScript to write assertio
 
 Click the three dots next to the Collection name and select “Run collection”:
 
-![](./3-tips-to-get-more-from-postman-image-05.png align="center")
+![](./3-tips-to-get-more-from-postman-image-05.png)
 
 This will open the runner tab:
 
-![](./3-tips-to-get-more-from-postman-image-06.png align="center")
+![](./3-tips-to-get-more-from-postman-image-06.png)
 
 Click the nice big orange button “Run ShoppingList” and the tests will run and the results be displayed:
 
-![](./3-tips-to-get-more-from-postman-image-07.png align="center")
+![](./3-tips-to-get-more-from-postman-image-07.png)
 
 Once you’ve got this far setting up a collection it’s quite easy to [schedule collection runs using Postman’s cloud](https://learning.postman.com/docs/collections/running-collections/scheduling-collection-runs/) or [using the Newman CLI tool](https://learning.postman.com/docs/collections/using-newman-cli/command-line-integration-with-newman/) to incorporate into your own pipeline. Getting rapid feedback in this way can really speed up development and provide assurance that the whole API is working correctly as development proceeds.
 

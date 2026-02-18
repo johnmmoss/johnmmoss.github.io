@@ -35,7 +35,7 @@ public IActionResult Error()
 
 If we hit this endpoint then we get a 500 internal status code with the stack trace returned as the body of the response:
 
-![](./global-error-handling-in-aspnet-core-8-with-iexceptionhandler-image-01.png align="center")
+![](./global-error-handling-in-aspnet-core-8-with-iexceptionhandler-image-01.png)
 
 So by default if we don’t add some sort of error handling we end up with a hideous stack trace returned to the calling application. This often leads to developers wrapping a try/catch statement around application code in a controller action and returning a 500 `StatusCodeResult`. But what response does a `StatusCodeResult` actually result in for the calling application? Let’s add another endpoint to investigate:
 
@@ -49,7 +49,7 @@ public IActionResult ProblemDetails()
 
 And if we hit that endpoint in postman:
 
-![](./global-error-handling-in-aspnet-core-8-with-iexceptionhandler-image-02.png align="center")
+![](./global-error-handling-in-aspnet-core-8-with-iexceptionhandler-image-02.png)
 
 So the `StatusCodeResult` seems to have a much nicer response. What’s going on? Enter the problem details abstraction…
 
@@ -66,11 +66,8 @@ So by default ASP.NET Core encapsulates error status codes as [problem details](
 In order to implement the `IExceptionHandler` we need to make a couple of changes to the default template that we saw above:
 
 1. Write a `GlobalExceptionHandler` which implements `IExceptionHandler` and handles any exceptions.
-    
 2. Register the `GlobalExceptionHandler` in the app start up code.
-    
 3. Add in the supporting exception handling middleware.
-    
 
 ### 1\. Write A `GlobalExceptionHandler`
 
@@ -168,8 +165,7 @@ fail: GlobalExceptionHandlerTest.Handlers.GlobalExceptionHandler[0]
 
 There is a github issue open to look at this:
 
-* [Unhandled exceptions are being logged before custom IExceptionHandler is being called](https://github.com/dotnet/aspnetcore/issues/54554)
-    
+- [Unhandled exceptions are being logged before custom IExceptionHandler is being called](https://github.com/dotnet/aspnetcore/issues/54554)
 
 One solution to solve this is to turn off logging for the middleware by setting it to only output for `Critical` level logs (for Serilog `Fatal`):
 

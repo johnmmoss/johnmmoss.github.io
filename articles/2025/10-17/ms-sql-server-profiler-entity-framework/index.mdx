@@ -10,32 +10,24 @@ Microsoft SQL Server Profiler is an excellent tool for getting information about
 
 You can start SQL Server Profiler from SSMS by going to the Tools menu and selecting SQL Server Profiler. This will open the profiler with you current SSMS connection selected. On connecting with the standard connection screen the Trace Properties will be displayed:
 
-![](./ms-sql-server-profiler-entity-framework-image-01.png align="center")
+![](./ms-sql-server-profiler-entity-framework-image-01.png)
 
 ## Configuring Events
 
 Select the Events Selection tab and then check Show all events and Show all columns:
 
-![](./ms-sql-server-profiler-entity-framework-image-02.png align="center")
+![](./ms-sql-server-profiler-entity-framework-image-02.png)
 
 There are a lot of events that track the behaviour of SQL server. I like to add the following:
 
-* SQL:BatchStarting
-    
-* SQL:BatchCompleted
-    
-* SQL:StmtStarting
-    
-* SQL:StmtCompleted
-    
-* SP:StmtStarting
-    
-* SP:StmtCompleted
-    
-* RPC:Starting
-    
-* RPC:Completed
-    
+- SQL:BatchStarting
+- SQL:BatchCompleted
+- SQL:StmtStarting
+- SQL:StmtCompleted
+- SP:StmtStarting
+- SP:StmtCompleted
+- RPC:Starting
+- RPC:Completed
 
 **Note** you’ll notice that the checkboxes in the above screenshot are greyed out - you will need to re-select these columns in order to select all events.
 
@@ -43,13 +35,13 @@ There are a lot of events that track the behaviour of SQL server. I like to add 
 
 SQL Server can be busy so it’s worth adding a filter so your not in undated with traffic. Select the Column Filter button and add `Core Microsoft SqlClient Data Provider` in `Like` against the `ApplicationName` :
 
-![](./ms-sql-server-profiler-entity-framework-image-03.png align="center")
+![](./ms-sql-server-profiler-entity-framework-image-03.png)
 
 ## Save As Template
 
 Once the trace is running its possible to go File &gt; Trace &gt; Save As and save the template with an appropriate name. I’ve saved the above as `EFTrace` so now I can start an Entity Framework trace with the relevant settings and filters:
 
-![](./ms-sql-server-profiler-entity-framework-image-04.png align="center")
+![](./ms-sql-server-profiler-entity-framework-image-04.png)
 
 ## Summary
 

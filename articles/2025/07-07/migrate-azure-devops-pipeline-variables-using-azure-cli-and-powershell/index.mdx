@@ -10,11 +10,11 @@ Recently I’ve been working on a project which has an Azure DevOps YAML pipelin
 
 For this blog post I recreated the scenario on a test account with some fake data to simulate the problem:
 
-![](./migrate-azure-devops-pipeline-variables-using-azure-cli-and-powershell-image-01.png align="center")
+![](./migrate-azure-devops-pipeline-variables-using-azure-cli-and-powershell-image-01.png)
 
 You can access pipeline variables by selecting a pipeline in the Pipelines menu and then clicking the edit button. The Variables button will be displayed in the top right of the screen. In my scenario each config item was repeated for each environment and I had actually created a variable group and started adding the config manually before realising it would take a very long time:
 
-![](./migrate-azure-devops-pipeline-variables-using-azure-cli-and-powershell-image-02.png align="center")
+![](./migrate-azure-devops-pipeline-variables-using-azure-cli-and-powershell-image-02.png)
 
 ## Introducing the Azure CLI
 
@@ -30,11 +30,11 @@ $pipelineName = "<your-pipeline-name>"
 
 I ended up using 3 commands to write my script:
 
-| **Command** | **Description** |
-| --- | --- |
-| [az pipeline variable list](https://learn.microsoft.com/en-us/cli/azure/pipelines/variable?view=azure-cli-latest#az-pipelines-variable-list) | List out all the variables in the pipeline |
-| [az pipelines variable-group variable list](https://learn.microsoft.com/en-us/cli/azure/pipelines/variable-group/variable?view=azure-cli-latest#az-pipelines-variable-group-variable-list) | List all variables in a variable group |
-| [az pipelines variable-group variable create](https://learn.microsoft.com/en-us/cli/azure/pipelines/variable-group/variable?view=azure-cli-latest#az-pipelines-variable-group-variable-create) | Add a variable to a variable group |
+| **Command**                                                                                                                                                                                    | **Description**                            |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| [az pipeline variable list](https://learn.microsoft.com/en-us/cli/azure/pipelines/variable?view=azure-cli-latest#az-pipelines-variable-list)                                                   | List out all the variables in the pipeline |
+| [az pipelines variable-group variable list](https://learn.microsoft.com/en-us/cli/azure/pipelines/variable-group/variable?view=azure-cli-latest#az-pipelines-variable-group-variable-list)     | List all variables in a variable group     |
+| [az pipelines variable-group variable create](https://learn.microsoft.com/en-us/cli/azure/pipelines/variable-group/variable?view=azure-cli-latest#az-pipelines-variable-group-variable-create) | Add a variable to a variable group         |
 
 **Note** that the these commands use the `azure-devops` extension for the Azure CLI which will automatically install the first time you run the command.
 
@@ -73,23 +73,16 @@ This command responds with JSON descriptions of each variable in the pipeline:
 
 With all the ground work done its time to think about how we want this script to run. For my particular scenario:
 
-* I only needed one environment’s set of variables, so some filtering of variables was required.
-    
-* Also, I had already added some of the variables manually so I decided to check upfront if a variable had been added so that it could just be skipped.
-    
-* Some variables were used across all environments (so not suffixed with `_DEV`) I decided to manually review each variable and decide if I wanted to upload it.
-    
-* If a variable is secret, then you can’t read its value. For these values I set a value of `SECRET` and manually added the secret after the script had run.
-    
+- I only needed one environment’s set of variables, so some filtering of variables was required.
+- Also, I had already added some of the variables manually so I decided to check upfront if a variable had been added so that it could just be skipped.
+- Some variables were used across all environments (so not suffixed with `_DEV`) I decided to manually review each variable and decide if I wanted to upload it.
+- If a variable is secret, then you can’t read its value. For these values I set a value of `SECRET` and manually added the secret after the script had run.
 
 These requirements could be broken down into the three CLI calls listed above which I wrapped in PowerShell functions so that they could be chained together in a script:
 
-* Ado-PipelinesVarsList
-    
-* Ado-VariableGroupItemExists
-    
-* Ado-VariableGroupAddItem
-    
+- Ado-PipelinesVarsList
+- Ado-VariableGroupItemExists
+- Ado-VariableGroupAddItem
 
 ### Ado-PipelineVarsList
 
@@ -112,19 +105,19 @@ function Ado-PipelineVarsList {
             --organization $organisation `
             --project $project `
             --output json
-        
-    $variables = $result | ConvertFrom-Json 
-    
+
+    $variables = $result | ConvertFrom-Json
+
     $variableHash = [ordered]@{}
 
-    foreach ($property in ($variables.PSObject.Properties)) {                
+    foreach ($property in ($variables.PSObject.Properties)) {
         if ($property.value.isSecret -eq $true) {
             $variableHash[$property.name] = "SECRET"
         } else {
             $variableHash[$property.name] = $property.value.value
         }
     }
-            
+
     return $variableHash
 }
 ```
@@ -134,16 +127,16 @@ Sample output from the function:
 ```plaintext
 PS C:\> Ado-PipelineVarsList "pipeline-sample"
 
-Name                           Value                                                                                                                                                                                          
-----                           -----                                                                                                                                                                                          
-APP_INSIGHTS_NAME_DEV          ai-webapp-dev                                                                                                                                                                                  
-APP_INSIGHTS_NAME_PROD         ai-webapp-prod                                                                                                                                                                                 
-APP_INSIGHTS_NAME_STAGING      ai-webapp-staging                                                                                                                                                                              
-APP_SERVICE_NAME_DEV           webapp-crm-dev                                                                                                                                                                                 
-APP_SERVICE_NAME_PROD          webapp-crm-prod                                                                                                                                                                                
-APP_SERVICE_NAME_STAGING       webapp-crm-staging                                                                                                                                                                             
-AZURE_SUBSCRIPTION_ID_DEV      SECRET                                                                                                                                                                                         
-AZURE_SUBSCRIPTION_ID_PROD     SECRET                                                                                                                                                                                         
+Name                           Value
+----                           -----
+APP_INSIGHTS_NAME_DEV          ai-webapp-dev
+APP_INSIGHTS_NAME_PROD         ai-webapp-prod
+APP_INSIGHTS_NAME_STAGING      ai-webapp-staging
+APP_SERVICE_NAME_DEV           webapp-crm-dev
+APP_SERVICE_NAME_PROD          webapp-crm-prod
+APP_SERVICE_NAME_STAGING       webapp-crm-staging
+AZURE_SUBSCRIPTION_ID_DEV      SECRET
+AZURE_SUBSCRIPTION_ID_PROD     SECRET
 AZURE_SUBSCRIPTION_ID_STAGING  SECRET
 ...
 ```
@@ -170,9 +163,9 @@ function Ado-VariableGroupItemExists {
             --project $project `
             --query "contains(keys(@), '$VariableName')" `
             --output json
-        
+
     $containsVariable = $result | ConvertFrom-Json
-            
+
     return $containsVariable
 }
 ```
@@ -211,9 +204,9 @@ function Ado-VariableGroupAddItem {
             --organization $organisation `
             --project $project `
             --output json
-        
+
     $uploadResult = $result | ConvertFrom-Json
-            
+
     return $uploadResult
 }
 ```
@@ -223,8 +216,8 @@ Sample output from the function:
 ```plaintext
 PS C:\WINDOWS\system32> Ado-VariableGroupAddItem 2 "Test" "Value"
 
-Test                     
-----                     
+Test
+----
 @{isSecret=; value=Value}
 ```
 
@@ -241,23 +234,23 @@ function Ado-MigrateVars() {
         [string]$VariableGroupId
     )
 
-    $pipelineVars = Ado-PipelineVarsList -PipelineName "pipeline-sample" 
+    $pipelineVars = Ado-PipelineVarsList -PipelineName "pipeline-sample"
 
     foreach ($varName in $pipelineVars.Keys) {
-    
+
         $varValue = $pipelineVars[$varName]
-    
+
         $exists = Ado-VariableGroupItemExists -TargetGroupId $VariableGroupId -VariableName $varName
-    
+
         if ($exists) {
             Write-Host "$varName - Already exists in variable group" -ForegroundColor DarkGray
         }
         else {
-           
+
             # Ask user if they want to upload this variable
             Write-Host "Would you like to upload '$varName' with value '$varValue' to the variable group? (y/n)" -ForegroundColor Yellow -NoNewline
-            $response = Read-Host " "            
-        
+            $response = Read-Host " "
+
             if ($response -eq "y") {
                 # Upload the variable
                 Ado-VariableGroupAddItem -TargetGroupId $VariableGroupId -VariableName $varName -VariableValue $varValue
@@ -279,7 +272,7 @@ Ado-MigrateVars -PipelineName "pipeline-sample" -VariableGroupId 2
 
 We can then evaluate each variable in turn and decide if we want to migrate it across to the new group:
 
-![](./migrate-azure-devops-pipeline-variables-using-azure-cli-and-powershell-image-03.png align="center")
+![](./migrate-azure-devops-pipeline-variables-using-azure-cli-and-powershell-image-03.png)
 
 ## Summary
 

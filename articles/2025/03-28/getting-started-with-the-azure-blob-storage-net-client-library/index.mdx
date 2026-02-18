@@ -54,17 +54,17 @@ az storage account show --resource-group unstacked-rg-dev --name unstackedblobs 
 
 Once we have completed the above steps we can now see the new storage account in the Azure Portal and are ready to write some code:
 
-![](./getting-started-with-the-azure-blob-storage-net-client-library-image-01.png align="center")
+![](./getting-started-with-the-azure-blob-storage-net-client-library-image-01.png)
 
 ## Using **Azure Blob Storage .NET Client**
 
 Microsoft provides the [Azure Blob Storage .NET client library](https://learn.microsoft.com/en-us/dotnet/api/overview/azure/storage?view=azure-dotnet) to access and manage storage accounts, blob containers and blobs. The library provides three different clients which can be used to interact with each of the three storage account resources though there is a bit of overlap in functionality:
 
-| **Name** | **Description** |  |
-| --- | --- | --- |
-| `BlobServiceClient` | Get, create and delete containers | [MSDN](https://learn.microsoft.com/en-us/dotnet/api/azure.storage.blobs.blobserviceclient?view=azure-dotnet) |
+| **Name**              | **Description**                            |                                                                                                                |
+| --------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| `BlobServiceClient`   | Get, create and delete containers          | [MSDN](https://learn.microsoft.com/en-us/dotnet/api/azure.storage.blobs.blobserviceclient?view=azure-dotnet)   |
 | `BlobContainerClient` | Get create and delete containers AND blobs | [MSDN](https://learn.microsoft.com/en-us/dotnet/api/azure.storage.blobs.blobcontainerclient?view=azure-dotnet) |
-| `BlobClient` | Get create and delete blobs | [MSDN](https://learn.microsoft.com/en-us/dotnet/api/azure.storage.blobs.blobclient?view=azure-dotnet) |
+| `BlobClient`          | Get create and delete blobs                | [MSDN](https://learn.microsoft.com/en-us/dotnet/api/azure.storage.blobs.blobclient?view=azure-dotnet)          |
 
 ### Authentication With DefaultAzureCredential
 
@@ -74,10 +74,8 @@ Before diving into some code, a quick word about client authentication. Microsof
 
 Now for some code, lets create a console application and add the following NuGet packages:
 
-* Azure.Storage.Blobs
-    
-* Azure.Identity
-    
+- Azure.Storage.Blobs
+- Azure.Identity
 
 We start by instantiating a `BlobServiceClient` passing in the blob service URI and a `DefaultAzureCredential`. We then use the `BobServiceClient` to create a blob container in Azure which also creates a `BlobContainerClient` to be used for further container operations:
 
@@ -96,7 +94,7 @@ BlobContainerClient containerClient = await blobServiceClient.CreateBlobContaine
 Now we can get a `BlobClient` from the `BlobContainerClient` created above and use it to do various blob operations:
 
 ```csharp
-// Get a reference to a blob that doesnt yet exist 
+// Get a reference to a blob that doesnt yet exist
 BlobClient blobClient = containerClient.GetBlobClient(newblobName);
 
 // Upload a file to the blobFileName blob
@@ -114,32 +112,27 @@ await blobClient.DownloadToAsync(pathToRemoteBlob);
 
 Microsoft has some excellent documentation for getting started with the Azure Storage Blob SDK:
 
-* [Quickstart: Azure Blob Storage client library for .NET](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-dotnet?tabs=visual-studio%2Cmanaged-identity%2Croles-azure-portal%2Csign-in-azure-cli%2Cidentity-visual-studio&pivots=blob-storage-quickstart-scratch)
-    
-* [Get started with Azure Blob Storage and .NET](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-dotnet-get-started?tabs=azure-ad)
-    
+- [Quickstart: Azure Blob Storage client library for .NET](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-dotnet?tabs=visual-studio%2Cmanaged-identity%2Croles-azure-portal%2Csign-in-azure-cli%2Cidentity-visual-studio&pivots=blob-storage-quickstart-scratch)
+- [Get started with Azure Blob Storage and .NET](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-dotnet-get-started?tabs=azure-ad)
 
 This article is based on the [console app](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-dotnet?tabs=visual-studio%2Cmanaged-identity%2Croles-azure-portal%2Csign-in-azure-cli%2Cidentity-visual-studio&pivots=blob-storage-quickstart-scratch#the-completed-code) example in the first link and second link includes a [Build your app](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-dotnet-get-started?tabs=azure-ad#build-your-app) section several guides:
 
-| **Guide** | **Description** |
-| --- | --- |
-| [Create a container](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-container-create) | Create containers |
-| [Upload blobs](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-upload) | Learn how to upload blobs by using strings, streams, file paths, and other methods |
-| [List blobs](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-list) | List blobs in different ways |
-| [List containers](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-containers-list) | List containers in an account and the various options available to customize a listing |
-| [Delete and restore blobs](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-delete) | Delete blobs, and if soft-delete is enabled, restore deleted blobs |
-| [Delete and restore containers](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-container-delete) | Delete containers, and if soft-delete is enabled, restore deleted containers |
+| **Guide**                                                                                                            | **Description**                                                                        |
+| -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| [Create a container](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-container-create)            | Create containers                                                                      |
+| [Upload blobs](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-upload)                            | Learn how to upload blobs by using strings, streams, file paths, and other methods     |
+| [List blobs](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-list)                               | List blobs in different ways                                                           |
+| [List containers](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-containers-list)                | List containers in an account and the various options available to customize a listing |
+| [Delete and restore blobs](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-delete)                | Delete blobs, and if soft-delete is enabled, restore deleted blobs                     |
+| [Delete and restore containers](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-container-delete) | Delete containers, and if soft-delete is enabled, restore deleted containers           |
 
 ## Integration With ASP.NET Web API
 
 We have seen the basic usage of the [Azure Blob Storage .NET Client library](https://learn.microsoft.com/en-us/dotnet/api/overview/azure/storage?view=azure-dotnet) to create containers and blobs, the only slight difference for Web API is the use of dependency injection. Start by creating a new Web API project and installing the NuGet packages. We need to install an additional NuGet package to support the dependency injection functionality:
 
-* Azure.Storage.Blobs
-    
-* Azure.Identity
-    
-* Microsoft.Extensions.Azure
-    
+- Azure.Storage.Blobs
+- Azure.Identity
+- Microsoft.Extensions.Azure
 
 Now we call the service collection extension method `AddAzureClients` passing in the `BlobServiceClient` that we want to inject into DI container:
 
@@ -176,8 +169,8 @@ public class StorageController : ControllerBase
         {
             return NotFound();
         }
-        
-        var stream = await blobClient.OpenReadAsync(); 
+
+        var stream = await blobClient.OpenReadAsync();
 
         return File(stream, "application/octet-stream",  blobName);
     }

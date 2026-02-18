@@ -22,7 +22,7 @@ We will store the state remotely in an Azure Storage Blob which makes it easier 
 az login
 
 $RESOURCE_GROUP_NAME='unstacked-mockserver-rg-dev'
-$STORAGE_ACCOUNT_NAME="tfstatestorage$(Get-Random)" 
+$STORAGE_ACCOUNT_NAME="tfstatestorage$(Get-Random)"
 $CONTAINER_NAME='tfstate'
 #
 # Create resource group
@@ -115,12 +115,12 @@ In the code above the [backend section](https://developer.hashicorp.com/terrafor
 
 With the above code saved to file we now ready to use the Terraform CLI executable downloaded in the first step to create the MockServer resources. Open a command line terminal and `CD` to where you saved `main.tf`. The basic Terraform commands are:
 
-| **Command** | **Description** |
-| --- | --- |
-| `init` | Initialise the terraform provider |
-| `plan` | Generate a plan of the infrastructure showing what is about to be added, changed or deleted. |
-| `apply` | Apply the resources described by the terraform code |
-| `destroy` | Destroy the resources created |
+| **Command** | **Description**                                                                              |
+| ----------- | -------------------------------------------------------------------------------------------- |
+| `init`      | Initialise the terraform provider                                                            |
+| `plan`      | Generate a plan of the infrastructure showing what is about to be added, changed or deleted. |
+| `apply`     | Apply the resources described by the terraform code                                          |
+| `destroy`   | Destroy the resources created                                                                |
 
 **Note** you can use `set-alias` in PowerShell to create a shorter form of the terraform command - less typing!
 
@@ -140,17 +140,14 @@ The commands take sometime to run through, but at the end of the `apply` operati
 
 If you browse to the `mockserver/dashboard` path of your deployed MockServer you can see the dashboard outlining the status of any expectations created and requests made:
 
-![](./how-to-deploy-mockserver-to-azure-using-terraform-and-docker-image-01.png align="center")
+![](./how-to-deploy-mockserver-to-azure-using-terraform-and-docker-image-01.png)
 
 Its possible to create a variety of expectations and responses, MockServer is very configurable and has some great documentation:
 
-* [Clients](https://www.mock-server.com/mock_server/mockserver_clients.html)
-    
-* [Request Property Matchers](https://www.mock-server.com/mock_server/getting_started.html#request_property_matchers)
-    
-* [Response Actions](https://www.mock-server.com/mock_server/creating_expectations.html#response_action)
-    
+- [Clients](https://www.mock-server.com/mock_server/mockserver_clients.html)
+- [Request Property Matchers](https://www.mock-server.com/mock_server/getting_started.html#request_property_matchers)
+- [Response Actions](https://www.mock-server.com/mock_server/creating_expectations.html#response_action)
 
 I particularly like the detailed logging which explains why an incoming request does not match a particular expectation - extremely useful for debugging:
 
-![](./how-to-deploy-mockserver-to-azure-using-terraform-and-docker-image-02.png align="center")
+![](./how-to-deploy-mockserver-to-azure-using-terraform-and-docker-image-02.png)

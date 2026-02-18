@@ -24,8 +24,8 @@ Log.Logger = new LoggerConfiguration()
 try
 {
     var builder = WebApplication.CreateBuilder(args);
-    builder.Host.UseSerilog(); 
-    
+    builder.Host.UseSerilog();
+
     //
     // Add services etc...
     //
@@ -71,7 +71,7 @@ services:
     image: splunk/splunk:8.2
     container_name: splunk02
     environment:
-#     - SPLUNK_ADMIN=admin
+      #     - SPLUNK_ADMIN=admin
       - SPLUNK_PASSWORD=Password1!
       - SPLUNK_START_ARGS="--accept-license"
     volumes:
@@ -96,11 +96,11 @@ splunk:
 
 Running `docker compose up` with the above files caused the initial Splunk install to error out with the following message:
 
-![](./using-serilog-and-net-to-write-logs-to-splunk-http-event-collector-image-01.png align="center")
+![](./using-serilog-and-net-to-write-logs-to-splunk-http-event-collector-image-01.png)
 
 The fix ended up being to edit one of the files created during the first run of `docker compose up`. Find the file `data\etc\splunk-launch.conf` and add the key `OPTIMISTIC_ABOUT_FILE_LOCKING` setting it to 1 as shown below:
 
-![](./using-serilog-and-net-to-write-logs-to-splunk-http-event-collector-image-02.png align="center")
+![](./using-serilog-and-net-to-write-logs-to-splunk-http-event-collector-image-02.png)
 
 Run `docker compose up` again and Splunk should start correctly this time. Once up and running, you can test the Splunk installation using `curl`. Note that the GUID set in the `default.yml` file becomes the HTTP auth token for the request:
 
@@ -110,13 +110,13 @@ Run `docker compose up` again and Splunk should start correctly this time. Once 
 
 And if we navigate to the portal at `localhost:8008` login with user `admin` and password `Password1!` then go to the “Search & Reporting” menu in the side bar we can search for the test message:
 
-![](./using-serilog-and-net-to-write-logs-to-splunk-http-event-collector-image-03.png align="center")
+![](./using-serilog-and-net-to-write-logs-to-splunk-http-event-collector-image-03.png)
 
 ## .NET Logs In Splunk
 
 If we run the ASP.NET Web API with Serilog installed as outlined above, then the logs will get written through to the Splunk instance using the HTTP Event Collector. In the screenshot below we can see the logs loading in Splunk that were written using this mechanism.
 
-![](./using-serilog-and-net-to-write-logs-to-splunk-http-event-collector-image-04.png align="center")
+![](./using-serilog-and-net-to-write-logs-to-splunk-http-event-collector-image-04.png)
 
 ## Summary
 
@@ -124,12 +124,8 @@ In this article, we explored how to integrate Serilog with an [ASP.NET](http://A
 
 I found the following resources useful for getting up to speed with Splunk:
 
-* [Installing Splunk Enterprise on Windows](https://www.splunk.com/en_us/training/videos/all-videos.html)
-    
-* [Using the Splunk HTTP Event Collector (HEC)](https://www.youtube.com/watch?v=9awwyjORWO8)
-    
-* [docker-splunk &gt; Introduction](https://www.youtube.com/watch?v=9awwyjORWO8)
-    
-* [docker-s](https://www.youtube.com/watch?v=9awwyjORWO8)[plunk &gt; Advanced](https://splunk.github.io/docker-splunk/ADVANCED.html#usage)
-    
-* [docker-splunk &gt; Storage Options](https://splunk.github.io/docker-splunk/STORAGE_OPTIONS.html)
+- [Installing Splunk Enterprise on Windows](https://www.splunk.com/en_us/training/videos/all-videos.html)
+- [Using the Splunk HTTP Event Collector (HEC)](https://www.youtube.com/watch?v=9awwyjORWO8)
+- [docker-splunk &gt; Introduction](https://www.youtube.com/watch?v=9awwyjORWO8)
+- [docker-s](https://www.youtube.com/watch?v=9awwyjORWO8)[plunk &gt; Advanced](https://splunk.github.io/docker-splunk/ADVANCED.html#usage)
+- [docker-splunk &gt; Storage Options](https://splunk.github.io/docker-splunk/STORAGE_OPTIONS.html)
