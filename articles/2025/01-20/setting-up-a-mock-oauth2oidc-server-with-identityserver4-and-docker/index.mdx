@@ -1,0 +1,146 @@
+---
+title: "Setting Up a Mock OAuth2/OIDC Server with IdentityServer4 and Docker"
+date: "2025-01-20"
+slug: "setting-up-a-mock-oauth2oidc-server-with-identityserver4-and-docker"
+description: "Easily set up a mock OAuth2/OIDC server with IdentityServer4 and Docker for testing and development"
+tags: []
+---
+
+The Soluto Github organisation has wrapped up IdentityServer4 in a docker image which can be used to provide an OAuth2 and OIDC standards compliant server for development and testing scenarios.
+
+* [oidc-server-mock](https://github.com/Soluto/oidc-server-mock)
+    
+
+## Getting Started
+
+The following docker compose file can be used to setup a standard configuration for IdentityServer4. Copy this YAML to a local file `docker-compose.yml`:
+
+```yaml
+version: '3.4'
+
+services:
+  oidc-server:
+    image: soluto/oidc-server-mock:latest
+    ports:
+      - "8010:443"
+      - "8020:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: https://+:443;http://+80
+      ASPNETCORE_HTTPS_PORT: 8010
+      ASPNETCORE_Kestrel__Certificates__Default__Password: password
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /https/aspnetapp.pfx
+      AUTHENTICATION:ISSUER: https://localhost:8010
+      SERVER_OPTIONS_INLINE: |
+        {         
+          "Authentication": {
+            "CookieSameSiteMode": "Lax",
+            "CheckSessionCookieSameSiteMode": "Lax"
+          }
+        }
+      USERS_CONFIGURATION_INLINE: |
+        [
+            {
+            "SubjectId":"john@email.com",
+            "Username":"John",
+            "Password":"Password1!",
+            "Claims": [
+                {
+                  "Type": "email",
+                  "Value": "john@email.com"
+                },
+            ]}
+        ]
+      CLIENTS_CONFIGURATION_PATH: /tmp/config/config.json
+
+    volumes:
+      - ./mock-oidc:/tmp/config:ro
+      - ~/.aspnet/https:/https:ro
+```
+
+## Creating Client Configuration
+
+The above YAML references a JSON file which provides client configuration information. Copy the below JSON to a local file at `mock-oidc/config.json`. This file sets up a default client for a sample application called MFT:
+
+```json
+[
+      {
+            "ClientId": "mft-api-dev",
+            "Description": "Mock OIDC for running Identity Server locally",
+            "AllowedGrantTypes": [
+                  "authorization_code",
+                  "client_credentials",
+                  "password"
+            ],
+            "AllowAccessTokensViaBrowser": false,
+            "RequirePkce": true,
+            "RedirectUris": [
+                  "http://localhost:3000"
+            ],
+            "AllowedScopes": [
+                  "openid",
+                  "profile",
+                  "email",
+                  "mft_api"
+            ],
+            "RequireClientSecret": false,
+            "ClientSecrets": [
+                  "MyMFTSecret"
+            ],
+            "IdentityTokenLifetime": 3600,
+            "AccessTokenLifetime": 3600,
+            "Claims": [
+                  {
+                        "Type": "aud",
+                        "Value": "mft_api"
+                  }
+            ]
+      }
+]
+```
+
+**Notes**
+
+* The [IdentityServer4 Client](https://identityserver4.readthedocs.io/en/latest/reference/client.html) documents explain what which each property does.
+    
+* By default `RequirePkce` is `true` set this value to `false` to enable the simpler [Authorization Code](https://developer.okta.com/blog/2018/04/10/oauth-authorization-code-grant-type) flow.
+    
+
+## Configuring HTTPS
+
+The YAML shown above references a PFX file which is used to enable HTTPS for the server. We need to generate a certificate with the name `aspnetapp.pfx` in the user’s `https` folder. Run the following command to set this certificate up:
+
+```plaintext
+dotnet dev-certs https -v -ep "$HOME/.aspnet/https/aspnetapp.pfx" -p password
+```
+
+**Note** see the MSDN docs for [dotnet dev-certs](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-dev-certs) for more information
+
+## Starting the Server
+
+With the config file saved to `oidc-mock/config.json`, the `docker-compose.yml` in the root directory and the certificate created we are now ready to run the `docker compose up` command to start IdentityServer4. On running the command the console will output the logs from the docker image:
+
+![](./setting-up-a-mock-oauth2oidc-server-with-identityserver4-and-docker-image-01.png align="center")
+
+## Requesting a Token
+
+To test our mock server we can use Postman to call IdentityServer4’s token endpoint using the Resource Owner password flow to retrieve a token. The raw HTTP to initiate the request:
+
+```http
+POST /connect/token HTTP/1.1
+Host: localhost:8010
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 101
+
+grant_type=password&client_id=mft-api-dev&client_secret=MyMFTSecret&username=John&password=Password1!
+```
+
+Using Postman, the same request:
+
+![](./setting-up-a-mock-oauth2oidc-server-with-identityserver4-and-docker-image-02.png align="center")
+
+IdentityServer4 also has a web portal and by clicking the “Click here” link to see claims you can force a challenge and be redirected to the login screen. Enter the username `John` and the password `password` to authenticate:
+
+![](./setting-up-a-mock-oauth2oidc-server-with-identityserver4-and-docker-image-03.png align="center")
+
+IdentityServer4 is now setup and ready for the the configured clients to request tokens. Be sure to read the [IdentityServer4 documentation](https://identityserver4.readthedocs.io/en/latest/reference/options.html) to learn how to configure clients for your scenario.

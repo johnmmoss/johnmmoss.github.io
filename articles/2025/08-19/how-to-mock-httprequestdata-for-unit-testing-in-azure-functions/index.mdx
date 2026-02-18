@@ -1,0 +1,127 @@
+---
+title: "How to Mock HttpRequestData for Unit Testing in Azure Functions"
+date: "2025-08-19"
+slug: "how-to-mock-httprequestdata-for-unit-testing-in-azure-functions"
+description: "Learn how to mock HttpRequestData for unit testing Azure Functions with Moq, enabling effective and clean testing of isolated HTTP triggers"
+tags: []
+---
+
+It turns out that unit testing Azure Function Http Triggers is not straightforward. In particular, isolated functions that use the [Built-in HTTP model](https://learn.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide?tabs=hostbuilder%2Clinux#built-in-http-model). The built-in model passes [HttpRequestData](https://learn.microsoft.com/en-us/dotnet/api/microsoft.azure.functions.worker.http.httprequestdata?view=azure-dotnet&preserve-view=true) to the `Run` method and returns a [HttpResponseData](https://learn.microsoft.com/en-us/dotnet/api/microsoft.azure.functions.worker.http.httpresponsedata?view=azure-dotnet&preserve-view=true) object.
+
+As an example, consider a function that reads the body and returns a response like so:
+
+```csharp
+[Function("WeatherFunction")]
+public async Task<HttpResponseData> Run(
+	[HttpTrigger(AuthorizationLevel.Function, "get", "post")] 
+	HttpRequestData request)
+{
+	_logger.LogInformation("Checking the weather...");
+	
+	var requestBody = await new StreamReader(request.Body).ReadToEndAsync();
+	
+	// ...
+	
+	var response = request.CreateResponse(HttpStatusCode.OK);
+	await response.WriteAsJsonAsync("no weather data found");
+	return response;
+}
+```
+
+Microsoft provide a complete helper method for mocking `HttpRequestData` using `Moq` in the [Unit testing trigger functions](https://learn.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-unit-testing-dotnet-isolated#unit-testing-trigger-functions) section of [Unit Testing Durable Functions](https://learn.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-unit-testing-dotnet-isolated) article. I reworked their sample code to fit for my scenario:
+
+```csharp
+private HttpRequestData MockHttpRequestData(object requestBody, string httpMethod = "GET", HttpHeadersCollection? headers = null)
+{
+	//
+	// ObjectSerializer
+	//
+	var mockObjectSerializer = new Mock<ObjectSerializer>();
+	mockObjectSerializer
+		.Setup(s => s.SerializeAsync(It.IsAny<Stream>(), It.IsAny<object?>(), It.IsAny<Type>(), It.IsAny<CancellationToken>()))
+		.Returns<Stream, object?, Type, CancellationToken>(async (stream, value, type, token) => { await JsonSerializer.SerializeAsync(stream, value, type, cancellationToken: token); });
+
+	var workerOptions = new WorkerOptions { Serializer = mockObjectSerializer.Object };
+	var mockOptions = new Mock<IOptions<WorkerOptions>>();
+	mockOptions.Setup(o => o.Value).Returns(workerOptions);
+	//
+	// IServiceProvider
+	//
+	var mockServiceProvider = new Mock<IServiceProvider>();
+	mockServiceProvider.Setup(sp => sp.GetService(typeof(IOptions<WorkerOptions>)))
+		.Returns(mockOptions.Object);
+	mockServiceProvider.Setup(sp => sp.GetService(typeof(ObjectSerializer)))
+		.Returns(mockObjectSerializer.Object);
+	//
+	// FunctionContext
+	//
+	var mockFunctionContext = new Mock<FunctionContext>();
+	mockFunctionContext.SetupGet(c => c.InstanceServices).Returns(mockServiceProvider.Object);
+	//
+	// HttpRequestData
+	//
+	var mockHttpRequestData = new Mock<HttpRequestData>(mockFunctionContext.Object);
+	mockHttpRequestData.SetupGet(x => x.Method).Returns(httpMethod);
+	mockHttpRequestData.SetupGet(r => r.Url).Returns(new Uri("https://localhost:7075/orchestrators/HelloCities"));
+	//
+	// Headers
+	//
+	headers ??= new HttpHeadersCollection();
+	mockHttpRequestData.SetupGet(r => r.Headers).Returns(headers);
+	//
+	// Body
+	//
+	Stream bodyStream;
+	if (requestBody != null)
+	{
+		var bodyJson = System.Text.Json.JsonSerializer.Serialize(requestBody);
+		var bodyBytes = System.Text.Encoding.UTF8.GetBytes(bodyJson);
+		bodyStream = new MemoryStream(bodyBytes);
+		mockHttpRequestData.SetupGet(r => r.Body).Returns(bodyStream);
+	}
+
+	//
+	// HttpResponseData
+	//
+	var mockHttpResponseData = new Mock<HttpResponseData>(mockFunctionContext.Object) { DefaultValue = DefaultValue.Mock };
+	mockHttpResponseData.SetupProperty(r => r.StatusCode, HttpStatusCode.OK);
+	mockHttpResponseData.SetupProperty(r => r.Body, new MemoryStream());
+	mockHttpRequestData.Setup(r => r.CreateResponse())
+		.Returns(mockHttpResponseData.Object);
+
+	return mockHttpRequestData.Object;
+}
+```
+
+This makes it possible to write nice clean tests and be able to mock the body, method and headers of the request and also assert on the response:
+
+```csharp
+[Test]
+public async Task Run_WhenProvidedWithAValidLocationAndDate_ReturnsWeatherData()
+{
+	var body = new WeatherRequest { Date = new DateOnly(2025, 6, 15), Locations = [1] };
+	var request = MockHttpRequestData(body);
+	var function = new WeatherFunction(NullLogger<WeatherFunction>.Instance);
+	
+	var response = await function.Run(request);
+	
+	Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+}
+```
+
+I have an example on [github](https://github.com/johnmmoss/unstacked.net/tree/main/AzureFunctionSample1) with a couple of unit tests showing how this works. `POST` the following JSON to the function to step through:
+
+```json
+{
+    "Date" : "2025-06-15",
+    "Locations" : [1]
+}
+```
+
+## Useful Resources
+
+The documentation is pretty comprehensive, its just a little difficult to find:
+
+* [Durable Functions unit testing (C# Isolated) &gt; Unit testing trigger functions](https://learn.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-unit-testing-dotnet-isolated#unit-testing-trigger-functions)
+    
+* [Guide for running C# Azure Functions in the isolated worker model &gt; HTTP Trigger](https://learn.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide?tabs=hostbuilder%2Clinux#http-trigger)

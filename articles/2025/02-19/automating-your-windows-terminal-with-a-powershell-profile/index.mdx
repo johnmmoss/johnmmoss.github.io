@@ -1,0 +1,221 @@
+---
+title: "Automating Your Windows Terminal With A PowerShell Profile"
+date: "2025-02-19"
+slug: "automating-your-windows-terminal-with-a-powershell-profile"
+description: "Automate tasks in Windows Terminal using PowerShell scripts: set variables, create functions, and run tools efficiently"
+tags: []
+---
+
+I’m a regular user of the Windows Terminal to speed up the manual tasks that are required during the software development process. I’ve found PowerShell’s `$PROFILE` script very useful for adding automation code which is loaded every time a PowerShell session starts. These are some of the things I’ve added to my own `$PROFILE` over the years:
+
+* Setting custom variables
+    
+* Using helper functions
+    
+* Automating common tasks
+    
+* Running custom tools
+    
+
+## Creating The $PROFILE Script
+
+Before we get started we need to actually create the script file. `$PROFILE` is actually just a string variable containing the path to the script file, not the file itself. Open a PowerShell terminal and enter the following commands to get started:
+
+```powershell
+PS: John > $PROFILE
+C:\Users\John\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1
+
+PS: John > Test-Path $PROFILE
+False
+
+PS: John > New-Item $PROFILE
+
+    Directory: C:\Users\John\Documents\WindowsPowerShell
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----       11/02/2025     22:43              0 󰞷  Microsoft.PowerShell_profile.ps1
+
+PS: John > notepad $PROFILE
+```
+
+The final command opens the `$PROFILE` script in notepad. As an example add the following code:
+
+```powershell
+function Say-Hello()
+{
+   Write-Host "Hello PS world!" -ForegroundColor Green
+}
+```
+
+Click Save and go back to the terminal. We need to reload the profile for the new code to be available, which can do by [dot sourcing](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_scripts?view=powershell-7.5#script-scope-and-dot-sourcing) the `$PROFILE` script. Once the script has been reloaded the new function is available to run:
+
+```powershell
+PS: John > . $PROFILE
+PS: John > Say-Hello
+Hello PS world!
+```
+
+## Setting Custom Variables
+
+Now that our `$PROFILE` script is setup we can add any PowerShell code we want. One of the first things I started to add in were custom variables so that I could more easily navigate to common directories:
+
+```powershell
+$code = "D:\Code";
+$github = "$code\github\";
+$mftsrc = "$github\MyFoodTracker\src";
+$mftclient = "$mftsrc\client"
+$mftapi = "$mftsrc\api";
+```
+
+## Using Helper Functions
+
+I’ve also found it useful to have simple PowerShell helper functions that wrap up existing commands making them a bit more succinct and user friendly:
+
+```powershell
+function Edit-Profile() {
+	 vim $profile
+}
+
+function nuke() {
+	Param($path)
+	del $path -Force -Recurse
+}
+
+function Copy-Path() {
+	(pwd).Path | clip
+}
+
+function Write-VisualStudioGitIgnore() {
+	iwr https://raw.githubusercontent.com/github/gitignore/main/VisualStudio.gitignore | sc .gitignore
+}
+
+function Start-MockServer() {
+	docker run -d --rm -p 1080:1080 mockserver/mockserver
+	write-host "Mockserver running access on: http://localhost:1080/mockserver/dashboard" -foregroud DarkGray
+}
+
+function Jira-Pat() {
+	(Get-StoredCredential -Target jira -AsCredentialObject).Password
+}
+
+function Set-AzAcmeDev() {
+	az account set --subscription "acme-development"
+	az account list -o table
+}
+```
+
+## Automating Common Tasks
+
+On a few occasions I’ve written quite big automation scripts that start up the system being developed and run some tests against it. Typically this is just during local development as the CI/CD pipeline takes care of the production build.
+
+In this first example a docker container is built, a helm chart deployed and then some integrations tests run:
+
+```powershell
+function saturn-inttest() {
+
+	write-host "***** Running integration tests *****" -foreground green 
+	write-host "Building docker container" -foreground green 
+	docker build -f docker/linux/debian/buster-slim/amd64/Dockerfile -t saturn/local:int --build-arg nuget_pat="$acmePat" .
+
+	write-host "Installing helm package" -foreground green 
+	helm install saturn-int-test helm/charts/saturn-acme-api -f helm.local/values.yml
+
+	write-host "Running dotnet test" -foreground green 
+	dotnet test src/Acme.Api.IntegrationTests/Acme.Api.IntegrationTests.csproj --settings src/Acme.Api.IntegrationTests/helm.local.runsettings.xml
+
+	write-host "Uninstalling helm package" -foreground green 
+	helm uninstall saturn-int-test
+
+	write-host "***** Integration Tests complete ******" -foreground green   
+}
+```
+
+Another more elaborate example builds and runs unit tests before starting the APIs and running some postman tests using [newman](https://learning.postman.com/docs/collections/using-newman-cli/command-line-integration-with-newman/):
+
+```powershell
+function AcmeManager-Test() {
+
+	write-host "Building AcmeHub.sln" -foreground green
+	dotnet build D:\Code\AcmeCorporate\saturn-ms-integration-api5\src\AcmeHub.sln --nologo -v q
+
+	dotnet test D:\Code\AcmeCorporate\saturn-ms-integration-api5\src\AcmeHub.sln --no-build -v q
+
+	write-host "Starting AcmeManagerShim Api Integration Tests" -foreground green
+	write-host "Starting APIs..." -foreground DarkGray
+	$psIntegrationApi = start-process -FilePath dotnet -ArgumentList " run --project D:\Code\AcmeCorporate\saturn-ms-integration-api5\src\Api\Api.csproj" -passthru -WindowStyle Minimized
+	$psShimApi = start-process -FilePath dotnet -ArgumentList " run --project D:\Code\AcmeCorporate\saturn-ms-integration-api5\src\AcmeManagerApi.Shim\AcmeManagerApi.Shim.csproj" -passthru -WindowStyle Minimized
+
+	write-host "Pinging http://localhost:5003" -foreground DarkGray 
+	$response = Invoke-WebRequest  "http://localhost:5003/ping"
+
+	While ($response.StatusCode -ne "200")
+	{
+		start-sleep 1
+		write-host "Pinging http://localhost:5003" -foreground DarkGray 
+		$response = Invoke-WebRequest  "http://localhost:5003/ping"
+		write-host "Trying ping again... "
+	} 
+
+	write-host "Running Postman Tests..." -foreground DarkGray 
+	newman run D:\Code\AcmeCorporate\IntegrationTesting\Postman\AcmeManagerApi.Shim-Test.v2.json -e D:\Code\AcmeCorporate\IntegrationTesting\Postman\AcmeManagerApi.Shim-Test.Environment.v2.json 
+
+	write-host "Stopping Apis..." -foreground DarkGray 
+    $psIntegrationApi | Stop-Process 
+	$psShimApi | Stop-Process 
+	
+	write-host "AcmeManagerShim Api Integration Tests complete!" -foreground green
+}
+```
+
+## Running Custom Executables
+
+The final technique that I use is to build a console app using C# and .NET Core and then add a PowerShell function which uses the `Invoke-Expression` cmdlet so that it can be called from the command line.
+
+Typically I would use the `PublishSingleFile` setting and then copy the `.exe` out to a `tools` directory which is added to the windows `PATH` directory:
+
+```powershell
+dotnet publish -c Release -o publish -p:PublishReadyToRun=true -p:PublishSingleFile=true -p:PublishTrimmed=true --self-contained true
+```
+
+```powershell
+function Ping-Acme()
+{
+    iex 'D:\AcmeCorporate\tools\AcmePing.exe'
+}
+```
+
+This simple technique is actually very useful for quickly and easily being able to write code to automate parts of the development process.
+
+As an example, one product that I worked on required regularly clicking through a complex wizard in order to setup the scenario to debug the code. I wrote a console app that used selenium to click through the screens to get to the page that was to be worked on.
+
+Once the initial method to navigate the wizard was there it became very useful to extend and adapt for different debug scenarios, for example when fixing a bug that occurred when two people had to book at the same time:
+
+```powershell
+function Nbs-BookApointment($nhsNumber, $dateOfBirth, $postcode, $bookDate, $time) {
+
+	iex 'D:\Code\NHSD\tools\AppointmentBooker\booker.exe $nhsNumber "$dateOfBirth" "$postcode" "$bookDate" "$time"'
+}
+
+function Nbs-BookAppointment1($time) {
+
+	$customerId = "5003245"
+	$dateOfBirth = "25/12/1948"
+	$postcode = "IP11 2GN"
+	$bookDate = "28/08/2023"
+	
+	Nbs-BookApointment $nhsNumber $dateOfBirth $postcode $bookDate $time
+}
+
+function Nbs-BookAppointment2($time) {
+
+	 $customerId = "5003657"
+	 $dateOfBirth = "30/06/1948"
+	 $postcode = "IP11 2GN"
+	 $bookDate = "28/08/2023"
+	
+	 Nbs-BookApointment $nhsNumber $dateOfBirth $postcode $bookDate $time
+}
+```
+
+The more you practice writing these little scripts and console apps to help automate the smaller tasks, the more opportunities seem to present themselves. I hope the above examples have given you some ideas for how you can automate your own local workflow using PowerShell and the `$PROFILE` script.

@@ -1,0 +1,249 @@
+---
+title: "C# JSON Parsing with Json.NET and JObject"
+date: "2025-09-15"
+slug: "c-sharp-json-parsing-json-net"
+description: "Learn JSON parsing in C# with Json.NET. Understand JToken, JObject and JProperty with step-by-step examples, from simple parsing to recursive traversal."
+tags: []
+---
+
+Parsing JSON using C# can be a fiddly but with [Newtonsoft’s Json.NET](https://www.newtonsoft.com/json) library it becomes a breeze. The library provides a number of types for parsing JSON which I find useful for hacking together tools to help work with big JSON structures. However, it can get a little bit confusing understanding what all the different classes are for, so in this article I’ll give a brief introduction to some of the classes so that you can understand and use the Json.NET API more easily.
+
+## Parsing With `JObject`
+
+JSON can be structured in a number of different ways. In the simple case, an object is a collection of properties:
+
+```csharp
+{
+  "name": "John Smith",
+  "age": 30,
+  "isActive": true,
+  "department": "Engineering"
+}
+```
+
+We can use the `JObject` type to parse the string representation of the JSON object and access the `Name` and `Value` of each property using the `JProperty` class:
+
+```csharp
+var jObject = JObject.Parse(jsonObject);
+
+foreach (var jProperty in jObject.Properties())
+{
+	Console.WriteLine($"{jProperty.Name} : {jProperty.Value}");
+}
+```
+
+The `JObject.Parse` method returns a `JObject` which, as the names suggests, represents a JSON object. The `JProperty` class represents JSON properties and provides access to the `Name` and `Value` of the property.
+
+It’s also possible to iterate a `JObject`s properties as `KeyValuePair<string, JToken?>` like so:
+
+```csharp
+var jObject = JObject.Parse(jsonObject);
+
+foreach (var kvp in jObject)
+{
+	Console.WriteLine($"{kvp.Key} : {kvp.Value}");
+}
+```
+
+When we iterate through a `JObject` in this way you will notice that we are actually getting back a `JToken` for the value. We talk more about `JToken`s a bit later.
+
+## Parsing Arrays with `JArray`
+
+Json.NET has a corresponding `JArray` class which represents JSON arrays. Consider the following JSON:
+
+```json
+[
+	{
+	  "name": "John Doe",
+	  "age": 30,
+	  "isActive": true,
+	  "department": "Finance"
+	},
+	{
+	  "name": "Sally Smith",
+	  "age": 47,
+	  "isActive": false,
+	  "department": "Engineering"
+	}
+]
+```
+
+This snippet shows a collection of objects so our previous snippet has evolved to use a `JArray` with multiple `JObject` children. We can parse and loop through the JSON structure like so:
+
+```csharp
+var jArray = JArray.Parse(json);
+
+foreach (var jObject in jArray.Children<JObject>())
+{
+	foreach (var jProperty in jObject.Properties())
+	{
+		Console.WriteLine($"{jProperty.Name} : {jProperty.Value}");
+	}
+}
+```
+
+It’s important to note in this example that the `Children<JObject>` class is being a bit clever. Because we know ahead of time that we have a collection of `JObject`s we are telling the `Children` method to return types of `JObject`. If we call the `Children` method without the type specified we actually get a `JToken`. So what exactly are `JToken`s?
+
+## Introducing The `JToken` Class
+
+The classes `JObect`, `JArray` and `JProperty` all represent the corresponding JSON types and as we have known the structure of our snippets above we have written code to parse these known snippets. But what if we don’t actually know the structure?
+
+The `JToken` class is actually the base class for all the types mentioned so far. It has a corresponding `Parse` method and we can iterate through each child as shown:
+
+```csharp
+var jToken = JToken.Parse(json);
+
+foreach (var child in jToken.Children())
+{
+	Console.WriteLine(child);
+}
+```
+
+Let’s consider a more complex JSON example:
+
+```json
+{
+	"hesCode" : "d660575a-9b13-4a7d-9066-8139f5c29dfb",
+	"company" : "ACME International",	
+	"sector" : "marketing",
+    "employee": {
+        "id": 12345,
+        "name": "Sarah Johnson",
+        "active": true
+    },
+    "projects": [
+        {
+            "name": "E-commerce Platform",
+            "status": "completed",
+            "technologies": [
+                "React",
+                "Express",
+                "MongoDB"
+            ]
+        },
+        {
+            "name": "Mobile App API",
+            "status": "in-progress",
+            "technologies": [
+                "Node.js",
+                "PostgreSQL"
+            ]
+        }
+    ]
+}
+```
+
+In the code below, we put together the code snippets seen above into one long example and print out the JSON values of each property, from each object from each array in the structure:
+
+```csharp
+var jToken = JToken.Parse(jsonObject);
+
+var rootProperties = jToken.Children();
+
+foreach (var rootProperty in rootProperties) 
+{
+	var rootJProperty = rootProperty as JProperty;
+	
+	if (rootJProperty.Value is JValue)
+	{
+		Console.WriteLine(rootJProperty.Value.ToString());
+	}
+
+	if (rootJProperty.Value is JObject)
+	{
+		var jObject =  rootJProperty.Value as JObject;
+
+		foreach (var jProperty in jObject.Properties())
+		{
+			Console.WriteLine(jProperty.Value.ToString());
+		}
+	} 
+	
+	if (rootJProperty.Value is JArray)
+	{
+		var jArray = rootJProperty.Value as JArray;
+
+		foreach (var jArrayChild in jArray.Children())
+		{
+			var jObject =  jArrayChild as JObject;
+
+			foreach (var jProperty in jObject.Properties())
+			{
+				Console.WriteLine(jProperty.Value.ToString());
+			}	
+		}
+	}
+}
+```
+
+Notice above that we have used a new Json.NET class called `JValue` which represents a primitive type from held in a property.
+
+Also notice that we are still hardcoded to the specific JSON structure that we have decided to process; I’ts actually a pretty naïve example. However, we’ve now see enough to be able to write a more sensible version of the code that will recursively loop through each node.
+
+## Recursively Processing JSON With `JToken`
+
+Considering the above JSON we can now write a recursive method that will loop through each JSON type and is not dependant on particular structure:
+
+```csharp
+var jToken = JToken.Parse(json);
+		
+ParseJToken(jToken);
+
+static void ParseJToken(JToken jToken)
+{
+	if (jToken is JValue)
+	{
+		var jValue = jToken as JValue;
+
+		Console.WriteLine(jValue);
+	}
+
+	if (jToken is JProperty)
+	{
+		var jProperty = jToken as JProperty;
+
+		ParseJToken(jProperty.Value);
+	}
+
+	if (jToken is JObject)
+	{
+		var jObject = jToken as JObject;
+
+		foreach (var jProperty in jObject.Properties())
+		{
+			ParseJToken(jProperty.Value);
+		}
+	}
+
+	if (jToken is JArray)
+	{
+		var jArray = jToken as JArray;
+
+		foreach (var jArrayChild in jArray.Children())
+		{
+			ParseJToken(jArrayChild);
+		}
+	}
+}
+```
+
+Yes, it would be a bit tidier and more efficient with a `switch` and/or some `continue` statements but for illustrative purposes we can see clearly now how to use the different Json.NET classes to parse a JSON structure.
+
+## Summary
+
+In this article we have seen how to easily parse JSON using C# and the Json.NET library. We have been introduced to the main Json.NET classes used to parse JSON structures:
+
+* `JToken`
+    
+* `JObject`
+    
+* `JArray`
+    
+* `JProperty`
+    
+* `JValue`
+    
+
+We saw how to use these classes to parse various JSON fragments starting with a simple object and moving to more complicated collections and nested objects. We also saw how we can use the `JToken` base class to process JSON even when we don’t know the underlying structures and finished with a generic recursive example which prints out all of the JSON values.
+
+The Json.NET library is a great resource for working with C# and JSON and I encourage you to have a read of the [documentation](https://www.newtonsoft.com/json/help/html/Introduction.htm) to learn more about it’s capabilities. Although I haven’t used it much in production scenarios, it has been very useful for writing simple console apps that help me understand complex JSON structures more easily.

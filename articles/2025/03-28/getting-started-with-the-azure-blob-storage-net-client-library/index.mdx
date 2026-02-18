@@ -1,0 +1,189 @@
+---
+title: "Getting Started with the Azure Blob Storage .NET Client Library"
+date: "2025-03-28"
+slug: "getting-started-with-the-azure-blob-storage-net-client-library"
+description: "Access and manage Azure Blob Storage in ASP.NET Core using .NET Client Library with integration and authentication tips"
+tags: []
+---
+
+[Azure Blob Storage](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-introduction) is Microsoft’s cloud storage solution for storing massive amounts of unstructured data. The solution is composed of three key resources: storage accounts, containers and blobs. A blob represents a file and a container organizes a set of blobs. A storage account is a high level abstraction that groups all Azure Storage objects including files, queues and tables as well as blobs.
+
+In this article I’ll show how to access Azure Blob Storage from an ASP.NET Core Web API using the [Azure Blob Storage .NET client library](https://learn.microsoft.com/en-us/dotnet/api/overview/azure/storage?view=azure-dotnet) provided by Microsoft. I’ll start with a console application demonstrating basic client usage before looking at how to integrate the clients into an ASP.NET Core Web API.
+
+## Creating An Azure Storage Account
+
+Before getting started we need to create the storage account for our blob container and assign the necessary permission to enable our user account access to the created storage account.
+
+It’s straightforward enough to create a storage account using the Azure Portal but I prefer to use the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-windows?pivots=winget). The excerpt below uses [`az storage account`](https://learn.microsoft.com/en-us/cli/azure/storage/account?view=azure-cli-latest) command to create a storage account:
+
+```powershell
+# Create Storage Account
+az storage account create -n unstackedblobs -g unstacked-rg-dev -l uksouth --sku Standard_LRS
+```
+
+### Assign The Storage Blob Data Contributor Permission
+
+To access the storage account the user must have the **Storage Blob Data Contributor** permission. You can add this permission through the Azure Portal by navigating to the storage account’s Access Control (IAM) page and from there clicking to Add Role Assignment. See [Assign an Azure role for access to blob data](https://learn.microsoft.com/en-us/azure/storage/blobs/assign-azure-role-data-access?tabs=portal) for more information.
+
+The Azure CLI commands to assign the permission are shown below. First we use [`az storage account`](https://learn.microsoft.com/en-us/cli/azure/storage/account?view=azure-cli-latest) to get the ID of the storage account and then pass this to the [`az role assignment`](https://learn.microsoft.com/en-us/cli/azure/role/assignment?view=azure-cli-latest) to assign the permission:
+
+```csharp
+# Read storage account id
+az storage account show --resource-group unstacked-rg-dev --name unstackedblobs --query id
+
+# Sample Output:
+#	"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/unstacked-rg-dev/providers/Microsoft.Storage/storageAccounts/unstackedblobs"
+
+# Assign "Storage Blob Data Contributor" permission
+az role assignment create --assignee "acme_hotmail.co.uk#EXT#@acmehotmailco.onmicrosoft.com" --role "Storage Blob Data Contributor" --scope "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/unstacked-rg-dev/providers/Microsoft.Storage/storageAccounts/unstackedblobs"
+```
+
+Note that the assignee for the permission assignment is the **user principal name** of the account for which access is being given. You can look this value up Azure Portal at [Microsoft Entra ID &gt; Users](https://portal.azure.com/#view/Microsoft_AAD_UsersAndTenants/UserManagementMenuBlade/~/AllUsers).
+
+### Get The Blob Service URL
+
+We will use the blob service URL in the code samples below to connect to the storage account’s blob storage. This can be read from the storage account’s Settings &gt; Endpoints page in the Azure Portal or by running the command below:
+
+```csharp
+# Select out the blob service url for use in the code
+az storage account show --resource-group unstacked-rg-dev --name unstackedblobs --query primaryEndpoints.blob
+
+# Sample output:
+#     https://unstackedblobs.blob.core.windows.net
+```
+
+Once we have completed the above steps we can now see the new storage account in the Azure Portal and are ready to write some code:
+
+![](./getting-started-with-the-azure-blob-storage-net-client-library-image-01.png align="center")
+
+## Using **Azure Blob Storage .NET Client**
+
+Microsoft provides the [Azure Blob Storage .NET client library](https://learn.microsoft.com/en-us/dotnet/api/overview/azure/storage?view=azure-dotnet) to access and manage storage accounts, blob containers and blobs. The library provides three different clients which can be used to interact with each of the three storage account resources though there is a bit of overlap in functionality:
+
+| **Name** | **Description** |  |
+| --- | --- | --- |
+| `BlobServiceClient` | Get, create and delete containers | [MSDN](https://learn.microsoft.com/en-us/dotnet/api/azure.storage.blobs.blobserviceclient?view=azure-dotnet) |
+| `BlobContainerClient` | Get create and delete containers AND blobs | [MSDN](https://learn.microsoft.com/en-us/dotnet/api/azure.storage.blobs.blobcontainerclient?view=azure-dotnet) |
+| `BlobClient` | Get create and delete blobs | [MSDN](https://learn.microsoft.com/en-us/dotnet/api/azure.storage.blobs.blobclient?view=azure-dotnet) |
+
+### Authentication With DefaultAzureCredential
+
+Before diving into some code, a quick word about client authentication. Microsoft provides the [`DefaultAzureCredential`](https://learn.microsoft.com/en-us/dotnet/api/azure.identity.defaultazurecredential?view=azure-dotnet) for local development scenarios which offers several potential ways of authenticating with Azure. One of these is the Azure CLI tools already mentioned above. With the Azure CLI tools installed you can login via a windows terminal using [`az login`](https://learn.microsoft.com/en-us/cli/azure/authenticate-azure-cli) and the code samples will authenticate using the [`AzureCliCredential`](https://learn.microsoft.com/en-us/dotnet/api/azure.identity.azureclicredential?view=azure-dotnet). This method works with both JetBrains Rider and Visual Studio IDEs not just in the windows terminal. For more information see the [documentation](https://learn.microsoft.com/en-us/dotnet/api/azure.identity.defaultazurecredential?view=azure-dotnet).
+
+### A Console Application Example
+
+Now for some code, lets create a console application and add the following NuGet packages:
+
+* Azure.Storage.Blobs
+    
+* Azure.Identity
+    
+
+We start by instantiating a `BlobServiceClient` passing in the blob service URI and a `DefaultAzureCredential`. We then use the `BobServiceClient` to create a blob container in Azure which also creates a `BlobContainerClient` to be used for further container operations:
+
+```csharp
+using Azure.Identity;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+
+var blobServiceClient = new BlobServiceClient(
+    new Uri($"https://unstackedblobs.blob.core.windows.net"),
+    new DefaultAzureCredential());
+
+BlobContainerClient containerClient = await blobServiceClient.CreateBlobContainerAsync("my-new-blob");
+```
+
+Now we can get a `BlobClient` from the `BlobContainerClient` created above and use it to do various blob operations:
+
+```csharp
+// Get a reference to a blob that doesnt yet exist 
+BlobClient blobClient = containerClient.GetBlobClient(newblobName);
+
+// Upload a file to the blobFileName blob
+await blobClient.UploadAsync(pathToLocalFile, overwrite:true);
+
+// List all files in the container
+foreach (BlobItem blobItem in containerClient.GetBlobs())
+{
+    Console.WriteLine("\t" + blobItem.Name);
+}
+
+// Download a remote blob
+await blobClient.DownloadToAsync(pathToRemoteBlob);
+```
+
+Microsoft has some excellent documentation for getting started with the Azure Storage Blob SDK:
+
+* [Quickstart: Azure Blob Storage client library for .NET](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-dotnet?tabs=visual-studio%2Cmanaged-identity%2Croles-azure-portal%2Csign-in-azure-cli%2Cidentity-visual-studio&pivots=blob-storage-quickstart-scratch)
+    
+* [Get started with Azure Blob Storage and .NET](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-dotnet-get-started?tabs=azure-ad)
+    
+
+This article is based on the [console app](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-dotnet?tabs=visual-studio%2Cmanaged-identity%2Croles-azure-portal%2Csign-in-azure-cli%2Cidentity-visual-studio&pivots=blob-storage-quickstart-scratch#the-completed-code) example in the first link and second link includes a [Build your app](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-dotnet-get-started?tabs=azure-ad#build-your-app) section several guides:
+
+| **Guide** | **Description** |
+| --- | --- |
+| [Create a container](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-container-create) | Create containers |
+| [Upload blobs](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-upload) | Learn how to upload blobs by using strings, streams, file paths, and other methods |
+| [List blobs](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-list) | List blobs in different ways |
+| [List containers](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-containers-list) | List containers in an account and the various options available to customize a listing |
+| [Delete and restore blobs](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-delete) | Delete blobs, and if soft-delete is enabled, restore deleted blobs |
+| [Delete and restore containers](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-container-delete) | Delete containers, and if soft-delete is enabled, restore deleted containers |
+
+## Integration With ASP.NET Web API
+
+We have seen the basic usage of the [Azure Blob Storage .NET Client library](https://learn.microsoft.com/en-us/dotnet/api/overview/azure/storage?view=azure-dotnet) to create containers and blobs, the only slight difference for Web API is the use of dependency injection. Start by creating a new Web API project and installing the NuGet packages. We need to install an additional NuGet package to support the dependency injection functionality:
+
+* Azure.Storage.Blobs
+    
+* Azure.Identity
+    
+* Microsoft.Extensions.Azure
+    
+
+Now we call the service collection extension method `AddAzureClients` passing in the `BlobServiceClient` that we want to inject into DI container:
+
+```csharp
+builder.Services.AddAzureClients(x =>
+{
+    x.AddBlobServiceClient(new Uri($"https://unstackedblobs.blob.core.windows.net"));
+    x.UseCredential(new DefaultAzureCredential());
+});
+```
+
+Now we can use standard dependency injection to get a `BlobServiceClient` and use the client as shown in the previous section. As an example the `GetBlobContent` controller below will stream a blob directly from Azure to the client browser:
+
+```csharp
+[ApiController]
+[Route("[controller]")]
+public class StorageController : ControllerBase
+{
+    private readonly BlobServiceClient _blobServiceClient;
+
+    public StorageController(BlobServiceClient blobServiceClient)
+    {
+        _blobServiceClient = blobServiceClient;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetBlobContent([FromQuery] string containerName, string blobName)
+    {
+        BlobContainerClient containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+
+        var blobClient = containerClient.GetBlobClient(blobName);
+
+        if (!blobClient.Exists())
+        {
+            return NotFound();
+        }
+        
+        var stream = await blobClient.OpenReadAsync(); 
+
+        return File(stream, "application/octet-stream",  blobName);
+    }
+}
+```
+
+For more information see [Dependency injection with the Azure SDK for .NET](https://learn.microsoft.com/en-us/dotnet/azure/sdk/dependency-injection?tabs=web-app-builder).
+
+In this article, we've introduced the Azure Blob Storage .NET Client library, covering its basic usage, authentication, and dependency injection. These foundational topics should help you get started with Azure Blob Storage and .NET. In future articles, I plan to explore these subjects in more detail. Let me know in the comments if you have any specific areas would you like to learn more about?

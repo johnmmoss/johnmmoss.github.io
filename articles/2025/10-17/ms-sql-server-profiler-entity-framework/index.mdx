@@ -1,0 +1,56 @@
+---
+title: "Using Microsoft SQL Server Profiler to Capture Entity Framework Queries"
+date: "2025-10-17"
+slug: "ms-sql-server-profiler-entity-framework"
+description: "Learn to capture and analyze Entity Framework queries using Microsoft SQL Server Profiler for better application performance insights"
+tags: []
+---
+
+Microsoft SQL Server Profiler is an excellent tool for getting information about the SQL being built and run by Entity Framework against your Microsoft SQL Server database. SQL Server Profiler installs with [SQL Server Management Studio](https://learn.microsoft.com/en-us/ssms/install/install) (SSMS) but is a separate standalone application and part of the Performance Tools suite.
+
+You can start SQL Server Profiler from SSMS by going to the Tools menu and selecting SQL Server Profiler. This will open the profiler with you current SSMS connection selected. On connecting with the standard connection screen the Trace Properties will be displayed:
+
+![](./ms-sql-server-profiler-entity-framework-image-01.png align="center")
+
+## Configuring Events
+
+Select the Events Selection tab and then check Show all events and Show all columns:
+
+![](./ms-sql-server-profiler-entity-framework-image-02.png align="center")
+
+There are a lot of events that track the behaviour of SQL server. I like to add the following:
+
+* SQL:BatchStarting
+    
+* SQL:BatchCompleted
+    
+* SQL:StmtStarting
+    
+* SQL:StmtCompleted
+    
+* SP:StmtStarting
+    
+* SP:StmtCompleted
+    
+* RPC:Starting
+    
+* RPC:Completed
+    
+
+**Note** you’ll notice that the checkboxes in the above screenshot are greyed out - you will need to re-select these columns in order to select all events.
+
+## Adding a Filter
+
+SQL Server can be busy so it’s worth adding a filter so your not in undated with traffic. Select the Column Filter button and add `Core Microsoft SqlClient Data Provider` in `Like` against the `ApplicationName` :
+
+![](./ms-sql-server-profiler-entity-framework-image-03.png align="center")
+
+## Save As Template
+
+Once the trace is running its possible to go File &gt; Trace &gt; Save As and save the template with an appropriate name. I’ve saved the above as `EFTrace` so now I can start an Entity Framework trace with the relevant settings and filters:
+
+![](./ms-sql-server-profiler-entity-framework-image-04.png align="center")
+
+## Summary
+
+SQL Server Profiler is a valuable tool to try to understand the behaviour of an application. By configuring events, adding a filter and creating a template you can quickly and easily gain insight into the crazy antics of your code.
