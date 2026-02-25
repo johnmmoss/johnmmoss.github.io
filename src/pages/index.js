@@ -1,13 +1,12 @@
-// Step 1: Import React
 import * as React from "react";
 import Layout from "../components/layout";
 import { graphql, Link } from "gatsby";
 import { StaticImage } from "gatsby-plugin-image";
+import ArticleCard from "../components/article-card";
 
-// Step 2: Define your component
 const IndexPage = ({ data }) => {
   return (
-    <Layout pageTitle="Homepage">
+    <Layout pageTitle="unstacked.net">
       <div className="row mt-md-3">
         <div className="col-12 col-sm-4 col-md-3 col-lg-2 mb-3 d-flex justify-content-center">
           <StaticImage
@@ -30,8 +29,22 @@ const IndexPage = ({ data }) => {
       </div>
       <div className="row mt-1">
         <div className="d-none d-lg-block col-lg-2">&nbsp;</div>
-        <div className="col-12 col-md-3 mb-3">
-          <h3 className="home">I Write About</h3>
+        <div className="col-12 col-md-9 col-lg-8">
+          <h3 className="home">Recent Articles</h3>
+          {data.allMdx.nodes.map((node) => (
+            <ArticleCard
+              id={node.id}
+              key={node.id}
+              title={node.frontmatter.title}
+              date={node.frontmatter.date}
+              excerpt={node.excerpt}
+              slug={node.frontmatter.slug}
+              tags={node.frontmatter.tags}
+            ></ArticleCard>
+          ))}
+        </div>
+        <div className="col-12 col-md-3 col-lg-2 mb-3">
+          <h3 className="home">Topics</h3>
           <ul>
             <li>
               <Link to="/tags/asp-net-core">ASP.NET Core</Link>
@@ -44,25 +57,6 @@ const IndexPage = ({ data }) => {
             </li>
           </ul>
         </div>
-        <div className="col-12 col-md-9 col-lg-7">
-          <h3 className="home">Recent Articles</h3>
-          {data.allMdx.nodes.map((node) => (
-            <div className="mb-4" key={node.id}>
-              <Link
-                to={`/articles/${node.frontmatter.slug}`}
-                className="blog-title-link"
-              >
-                <h5>{node.frontmatter.title}</h5>
-              </Link>
-              <p>
-                {node.excerpt} &nbsp;
-                <Link to={`/articles/${node.frontmatter.slug}`}>
-                  read more ➝
-                </Link>
-              </p>
-            </div>
-          ))}
-        </div>
       </div>
     </Layout>
   );
@@ -70,7 +64,7 @@ const IndexPage = ({ data }) => {
 
 export const query = graphql`
   {
-    allMdx(sort: { fields: frontmatter___date, order: DESC }, limit: 3) {
+    allMdx(sort: { fields: frontmatter___date, order: DESC }, limit: 6) {
       nodes {
         frontmatter {
           date(formatString: "MMMM D, YYYY")
@@ -79,7 +73,7 @@ export const query = graphql`
           slug
         }
         id
-        excerpt(pruneLength: 200)
+        excerpt(pruneLength: 260)
       }
     }
   }

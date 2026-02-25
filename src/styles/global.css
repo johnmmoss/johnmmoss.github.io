@@ -4,15 +4,17 @@ main {
 
 h1 {
   position: relative;
-  font-size: 3.5em;
-  line-height: 0.9;
+  font-size: 2.6em;
+  line-height: 1.1;
   text-align: center;
-  color: #525252;
+  color: white;
 }
 
 h2 {
   color: #525252;
   font-size: 1.7m;
+  margin-top: 30px;
+  margin-bottom: 15px;
 }
 
 h3 {
@@ -26,11 +28,11 @@ h3 {
 h3.home {
   margin-top: 0;
   font-size: 1.2em;
-  border-bottom: 1px solid #a9a9a9;
   margin-bottom: 20px;
   letter-spacing: 2px;
   padding-bottom: 7px;
   color: #525252;
+  border-bottom: 1px solid #a9a9a9;
 }
 
 h4 {
@@ -39,6 +41,9 @@ h4 {
   font-size: 1.2em;
 }
 
+p {
+  line-height: 1.7;
+}
 a {
   text-decoration: none;
 }
@@ -70,15 +75,15 @@ footer {
 
 .hero-main {
   position: relative;
-  height: 30vh;
+  height: 15vh;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   background-image: url("../images/tortise.jpg");
   background-size: cover;
-  background-position: 50% 0%;
-  letter-spacing: 3px;
+  background-position: 50% 25%;
+  letter-spacing: 1.5px;
 }
 
 .hero-main::before {
@@ -88,7 +93,7 @@ footer {
   right: 0px;
   bottom: 4%;
   left: 0px;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(0, 0, 0, 0.4);
 }
 
 .container-min {
@@ -106,6 +111,7 @@ footer {
 }
 
 .blog-article-content {
+  line-height: 1.7;
   margin-bottom: 20px;
 }
 

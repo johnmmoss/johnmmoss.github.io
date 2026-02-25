@@ -1,9 +1,9 @@
 module.exports = {
   trailingSlash: "never",
   siteMetadata: {
-    siteUrl: `http://johnmmoss.github.io`,
-    title: `Tech Notes - johnmmoss`,
-    description: `John's tech notes`,
+    siteUrl: `http://www.unstacked.net`,
+    title: `unstacked.net`,
+    description: `unstacked.net is a blog about software development, with a focus on ASP.NET Core, C#, and web development.`,
   },
   plugins: [
     "gatsby-plugin-image",

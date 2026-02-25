@@ -3,7 +3,7 @@ title: "Securing an ASP.NET Website with OpenID Connect"
 date: "2025-11-16"
 slug: "securing-an-aspnet-website-with-openid-connect"
 description: "Learn how to secure your ASP.NET website with OpenID Connect using Microsoft's middleware for authentication and authorization"
-tags: []
+tags: ["ASP.NET Core", "OAuth2", "OpenID Connect", "IdentityServer4"]
 ---
 
 The Microsoft ASP.NET middleware makes it straightforward to implement OAuth2 and OpenID Connect flows in an ASP.NET Website. In this article we will go through the code and configuration required to implement the authorization code flow using the standard packages.
@@ -120,7 +120,7 @@ Update the value `RedirectUris` in the `config.json` to include the URL that the
 
 Checkout my [github repository](https://github.com/johnmmoss/unstacked.net/tree/main/OAuthSample) for a working example of these changes. [Commit `c204683`](https://github.com/johnmmoss/unstacked.net/commit/c2046835e97757544046ad637d90f87d9c2599f6) has the changes outlined in this section.
 
-## **Add a Logout Link**
+## Add a Logout Link
 
 So far we can login, but how do we logout? Next lets implement the logout functionality. We start by adding a new Razor page `Logout.cshtml` and add the following to the code behind:
 

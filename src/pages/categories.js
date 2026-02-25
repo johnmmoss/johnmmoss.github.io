@@ -10,23 +10,27 @@ const CategoriesPage = ({
       siteMetadata: { title },
     },
   },
-}) => (
-  <Layout pageTitle="Categories">
-    <div className="container-min">
-      {group.map((tag) => (
-        <li key={tag.fieldValue} className="mt-1 mb-1">
-          <Link
-            to={`/tags/${kebabCase(tag.fieldValue)}/`}
-            className="btn btn-secondary btn-sm"
-          >
-            {tag.fieldValue}
-            <span className="badge badge-secondary">{tag.totalCount}</span>
-          </Link>
-        </li>
-      ))}
-    </div>
-  </Layout>
-);
+}) => {
+  const sortedTags = [...group].sort((a, b) => b.totalCount - a.totalCount);
+
+  return (
+    <Layout pageTitle="Categories">
+      <div className="container-min">
+        {sortedTags.map((tag) => (
+          <li key={tag.fieldValue} className="mt-1 mb-1">
+            <Link
+              to={`/tags/${kebabCase(tag.fieldValue)}/`}
+              className="btn btn-secondary btn-sm"
+            >
+              {tag.fieldValue}
+              <span className="badge badge-secondary">{tag.totalCount}</span>
+            </Link>
+          </li>
+        ))}
+      </div>
+    </Layout>
+  );
+};
 
 export default CategoriesPage;
 

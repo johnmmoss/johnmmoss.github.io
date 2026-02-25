@@ -17,14 +17,14 @@ const Layout = ({ pageTitle, children }) => {
   return (
     <>
       <Helmet>
-        <title>{pageTitle} - johnmmoss.github.io</title>
+        <title>{pageTitle} - unstacked.net</title>
       </Helmet>
       <div className="site">
         <header>
           <Navbar collapseOnSelect expand="lg">
             <Container>
               <Link to="/" className="navbar-brand" activeClassName="active">
-                johnmmoss.github.io
+                unstacked.net
               </Link>
               <Navbar.Toggle aria-controls="responsive-navbar-nav" />
               <Navbar.Collapse

@@ -7,10 +7,9 @@ import { date } from "./article.css";
 
 const BlogPost = ({ data }) => {
   return (
-    <Layout pageTitle="Articles">
+    <Layout pageTitle={`${data.mdx.frontmatter.title}`}>
       <div className="container-min ">
         <div className="d-flex flex-column justify-content-center align-items-center my-4">
-          <h2 className={date}>{data.mdx.frontmatter.title}</h2>
           <div className="mt-2 fst-italic">{data.mdx.frontmatter.date}</div>
         </div>
         <MDXRenderer>{data.mdx.body}</MDXRenderer>
