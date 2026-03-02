@@ -3,7 +3,7 @@ title: "C# JSON Parsing with Json.NET and JObject"
 date: "2025-09-15"
 slug: "c-sharp-json-parsing-json-net"
 description: "Learn JSON parsing in C# with Json.NET. Understand JToken, JObject and JProperty with step-by-step examples, from simple parsing to recursive traversal."
-tags: []
+tags: ["C#", "JSON", "Json.NET"]
 ---
 
 Parsing JSON using C# can be a fiddly but with [Newtonsoft’s Json.NET](https://www.newtonsoft.com/json) library it becomes a breeze. The library provides a number of types for parsing JSON which I find useful for hacking together tools to help work with big JSON structures. However, it can get a little bit confusing understanding what all the different classes are for, so in this article I’ll give a brief introduction to some of the classes so that you can understand and use the Json.NET API more easily.
@@ -53,18 +53,18 @@ Json.NET has a corresponding `JArray` class which represents JSON arrays. Consid
 
 ```json
 [
-	{
-	  "name": "John Doe",
-	  "age": 30,
-	  "isActive": true,
-	  "department": "Finance"
-	},
-	{
-	  "name": "Sally Smith",
-	  "age": 47,
-	  "isActive": false,
-	  "department": "Engineering"
-	}
+  {
+    "name": "John Doe",
+    "age": 30,
+    "isActive": true,
+    "department": "Finance"
+  },
+  {
+    "name": "Sally Smith",
+    "age": 47,
+    "isActive": false,
+    "department": "Engineering"
+  }
 ]
 ```
 
@@ -103,33 +103,26 @@ Let’s consider a more complex JSON example:
 
 ```json
 {
-	"hesCode" : "d660575a-9b13-4a7d-9066-8139f5c29dfb",
-	"company" : "ACME International",	
-	"sector" : "marketing",
-    "employee": {
-        "id": 12345,
-        "name": "Sarah Johnson",
-        "active": true
+  "hesCode": "d660575a-9b13-4a7d-9066-8139f5c29dfb",
+  "company": "ACME International",
+  "sector": "marketing",
+  "employee": {
+    "id": 12345,
+    "name": "Sarah Johnson",
+    "active": true
+  },
+  "projects": [
+    {
+      "name": "E-commerce Platform",
+      "status": "completed",
+      "technologies": ["React", "Express", "MongoDB"]
     },
-    "projects": [
-        {
-            "name": "E-commerce Platform",
-            "status": "completed",
-            "technologies": [
-                "React",
-                "Express",
-                "MongoDB"
-            ]
-        },
-        {
-            "name": "Mobile App API",
-            "status": "in-progress",
-            "technologies": [
-                "Node.js",
-                "PostgreSQL"
-            ]
-        }
-    ]
+    {
+      "name": "Mobile App API",
+      "status": "in-progress",
+      "technologies": ["Node.js", "PostgreSQL"]
+    }
+  ]
 }
 ```
 
@@ -140,10 +133,10 @@ var jToken = JToken.Parse(jsonObject);
 
 var rootProperties = jToken.Children();
 
-foreach (var rootProperty in rootProperties) 
+foreach (var rootProperty in rootProperties)
 {
 	var rootJProperty = rootProperty as JProperty;
-	
+
 	if (rootJProperty.Value is JValue)
 	{
 		Console.WriteLine(rootJProperty.Value.ToString());
@@ -157,8 +150,8 @@ foreach (var rootProperty in rootProperties)
 		{
 			Console.WriteLine(jProperty.Value.ToString());
 		}
-	} 
-	
+	}
+
 	if (rootJProperty.Value is JArray)
 	{
 		var jArray = rootJProperty.Value as JArray;
@@ -170,7 +163,7 @@ foreach (var rootProperty in rootProperties)
 			foreach (var jProperty in jObject.Properties())
 			{
 				Console.WriteLine(jProperty.Value.ToString());
-			}	
+			}
 		}
 	}
 }
@@ -186,7 +179,7 @@ Considering the above JSON we can now write a recursive method that will loop th
 
 ```csharp
 var jToken = JToken.Parse(json);
-		
+
 ParseJToken(jToken);
 
 static void ParseJToken(JToken jToken)
@@ -233,16 +226,11 @@ Yes, it would be a bit tidier and more efficient with a `switch` and/or some `co
 
 In this article we have seen how to easily parse JSON using C# and the Json.NET library. We have been introduced to the main Json.NET classes used to parse JSON structures:
 
-* `JToken`
-    
-* `JObject`
-    
-* `JArray`
-    
-* `JProperty`
-    
-* `JValue`
-    
+- `JToken`
+- `JObject`
+- `JArray`
+- `JProperty`
+- `JValue`
 
 We saw how to use these classes to parse various JSON fragments starting with a simple object and moving to more complicated collections and nested objects. We also saw how we can use the `JToken` base class to process JSON even when we don’t know the underlying structures and finished with a generic recursive example which prints out all of the JSON values.
 

@@ -3,7 +3,7 @@ title: "How to Mock HttpRequestData for Unit Testing in Azure Functions"
 date: "2025-08-19"
 slug: "how-to-mock-httprequestdata-for-unit-testing-in-azure-functions"
 description: "Learn how to mock HttpRequestData for unit testing Azure Functions with Moq, enabling effective and clean testing of isolated HTTP triggers"
-tags: []
+tags: ["C#", "ASP.NET Core", "Azure Functions", "Unit Testing"]
 ---
 
 It turns out that unit testing Azure Function Http Triggers is not straightforward. In particular, isolated functions that use the [Built-in HTTP model](https://learn.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide?tabs=hostbuilder%2Clinux#built-in-http-model). The built-in model passes [HttpRequestData](https://learn.microsoft.com/en-us/dotnet/api/microsoft.azure.functions.worker.http.httprequestdata?view=azure-dotnet&preserve-view=true) to the `Run` method and returns a [HttpResponseData](https://learn.microsoft.com/en-us/dotnet/api/microsoft.azure.functions.worker.http.httpresponsedata?view=azure-dotnet&preserve-view=true) object.
@@ -13,15 +13,15 @@ As an example, consider a function that reads the body and returns a response li
 ```csharp
 [Function("WeatherFunction")]
 public async Task<HttpResponseData> Run(
-	[HttpTrigger(AuthorizationLevel.Function, "get", "post")] 
+	[HttpTrigger(AuthorizationLevel.Function, "get", "post")]
 	HttpRequestData request)
 {
 	_logger.LogInformation("Checking the weather...");
-	
+
 	var requestBody = await new StreamReader(request.Body).ReadToEndAsync();
-	
+
 	// ...
-	
+
 	var response = request.CreateResponse(HttpStatusCode.OK);
 	await response.WriteAsJsonAsync("no weather data found");
 	return response;
@@ -102,9 +102,9 @@ public async Task Run_WhenProvidedWithAValidLocationAndDate_ReturnsWeatherData()
 	var body = new WeatherRequest { Date = new DateOnly(2025, 6, 15), Locations = [1] };
 	var request = MockHttpRequestData(body);
 	var function = new WeatherFunction(NullLogger<WeatherFunction>.Instance);
-	
+
 	var response = await function.Run(request);
-	
+
 	Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 }
 ```
@@ -113,8 +113,8 @@ I have an example on [github](https://github.com/johnmmoss/unstacked.net/tree/ma
 
 ```json
 {
-    "Date" : "2025-06-15",
-    "Locations" : [1]
+  "Date": "2025-06-15",
+  "Locations": [1]
 }
 ```
 
@@ -122,6 +122,5 @@ I have an example on [github](https://github.com/johnmmoss/unstacked.net/tree/ma
 
 The documentation is pretty comprehensive, its just a little difficult to find:
 
-* [Durable Functions unit testing (C# Isolated) &gt; Unit testing trigger functions](https://learn.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-unit-testing-dotnet-isolated#unit-testing-trigger-functions)
-    
-* [Guide for running C# Azure Functions in the isolated worker model &gt; HTTP Trigger](https://learn.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide?tabs=hostbuilder%2Clinux#http-trigger)
+- [Durable Functions unit testing (C# Isolated) &gt; Unit testing trigger functions](https://learn.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-unit-testing-dotnet-isolated#unit-testing-trigger-functions)
+- [Guide for running C# Azure Functions in the isolated worker model &gt; HTTP Trigger](https://learn.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide?tabs=hostbuilder%2Clinux#http-trigger)

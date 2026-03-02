@@ -11,7 +11,7 @@ const Tags = ({ pageContext, data }) => {
   return (
     <Layout pageTitle="Categories">
       <div className="container-min">
-        <div className="d-flex justify-content-center mb-3">
+        <div className="d-flex justify-content-center mb-3 mt-2">
           <h5>
             {tagHeader} <Badge bg="secondary">{tag}</Badge>
           </h5>

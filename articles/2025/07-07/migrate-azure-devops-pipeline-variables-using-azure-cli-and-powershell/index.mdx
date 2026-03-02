@@ -3,7 +3,7 @@ title: "Migrate Azure DevOps Pipeline Variables using Azure CLI and PowerShell"
 date: "2025-07-07"
 slug: "migrate-azure-devops-pipeline-variables-using-azure-cli-and-powershell"
 description: "Learn to migrate Azure DevOps pipeline variables to variable groups using Azure CLI with a custom PowerShell script"
-tags: []
+tags: ["Azure Devops", "Azure CLI", "PowerShell"]
 ---
 
 Recently I’ve been working on a project which has an Azure DevOps YAML pipeline with all environment config added using [pipeline variables](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/variables). The [variable groups feature](https://learn.microsoft.com/en-us/azure/devops/pipelines/library/variable-groups) provides a much better way of grouping and managing pipeline config so I decided to write a script to migrate the variables from the pipeline to a variable group. See [Migrate-PipelineVariables.ps1](https://github.com/johnmmoss/unstacked.net/blob/main/Scripts/AzureDevops/Migrate-PipelineVariables.ps1) for the complete code listing.

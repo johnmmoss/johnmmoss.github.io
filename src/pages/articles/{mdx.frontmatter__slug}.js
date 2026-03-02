@@ -9,15 +9,15 @@ const BlogPost = ({ data }) => {
   return (
     <Layout pageTitle={`${data.mdx.frontmatter.title}`}>
       <div className="container-min ">
-        <div className="d-flex flex-column justify-content-center align-items-center mt-2">
+        <div className="d-flex flex-column justify-content-center align-items-center">
           <div className="mt-2 fst-italic fs-5 mb-3">
             {data.mdx.frontmatter.date}
           </div>
-          <div className="d-flex flex-wrap justify-content-center mb-4">
+          <div className="d-flex flex-wrap justify-content-center mb-3 gap-2">
             {data.mdx.frontmatter.tags?.map((tag, i) => (
               <Link
                 to={`/tags/${tag}/`}
-                className="badge border text-secondary text-decoration-none me-1 mb-1 tag-badge"
+                className="badge border text-secondary text-decoration-none me-1 mb-6 tag-badge"
                 key={i}
               >
                 {tag}
