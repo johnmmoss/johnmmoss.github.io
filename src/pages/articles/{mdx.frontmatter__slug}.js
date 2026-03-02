@@ -4,6 +4,7 @@ import { MDXRenderer } from "gatsby-plugin-mdx";
 import { Link } from "gatsby";
 import Layout from "../../components/layout";
 import { date } from "./article.css";
+import kebabCase from "lodash/kebabCase";
 
 const BlogPost = ({ data }) => {
   return (
@@ -16,7 +17,7 @@ const BlogPost = ({ data }) => {
           <div className="d-flex flex-wrap justify-content-center mb-3 gap-2">
             {data.mdx.frontmatter.tags?.map((tag, i) => (
               <Link
-                to={`/tags/${tag}/`}
+                to={`/tags/${kebabCase(tag)}/`}
                 className="badge border text-secondary text-decoration-none me-1 mb-6 tag-badge"
                 key={i}
               >
