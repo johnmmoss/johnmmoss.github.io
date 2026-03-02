@@ -1,5 +1,4 @@
 main {
-  padding-top: 20px;
 }
 
 h1 {
@@ -144,6 +143,12 @@ th {
 th:first-child,
 td:first-child {
   width: 170px;
+}
+
+.tag-badge {
+  font-size: 0.85em;
+  padding: 0.4em 0.7em;
+  font-weight: 600;
 }
 
 /* Reset all list items to have just a top border */

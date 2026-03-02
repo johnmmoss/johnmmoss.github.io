@@ -17,20 +17,29 @@ const ArticleCard = ({ id, date, title, excerpt, slug, tags }) => {
               <div className="blog-article-date">{date}</div>
               <div className="blog-article-content">
                 {excerpt}
-                &nbsp; <Link to={`/articles/${slug}`}>read more ➝</Link>
+                &nbsp;
               </div>
             </div>
-            <div className="d-flex justify-content-end">
-              {tags?.map((tag, i) => (
+            <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+              <div className="d-flex flex-wrap justify-content-around">
+                {tags?.map((tag, i) => (
+                  <Link
+                    to={`/tags/${kebabCase(tag)}/`}
+                    className="badge border text-secondary text-decoration-none me-1 mb-1 tag-badge"
+                    key={i}
+                  >
+                    {tag}
+                  </Link>
+                ))}
+              </div>
+              <div className="mt-2 mt-md-0">
                 <Link
-                  to={`/tags/${kebabCase(tag)}/`}
-                  className="btn btn-outline-secondary btn-sm mr-5"
-                  style={{ marginRight: "3%", marginBottom: "2px" }}
-                  key={i}
+                  to={`/articles/${slug}`}
+                  className="btn btn-secondary w-100 text-nowrap"
                 >
-                  {tag}
+                  read more
                 </Link>
-              ))}
+              </div>
             </div>
           </span>
         </div>
