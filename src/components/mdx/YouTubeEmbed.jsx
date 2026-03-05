@@ -1,7 +1,7 @@
 import React from "react";
 
-const YouTubeEmbed = ({ videoId, alt = "YouTube video", width = 600 }) => (
-  <div style={{ textAlign: "center" }}>
+const YouTubeEmbed = ({ videoId, alt = "YouTube video" }) => (
+  <div className="text-center my-5">
     <a
       href={`https://www.youtube.com/watch?v=${videoId}`}
       target="_blank"
@@ -10,7 +10,7 @@ const YouTubeEmbed = ({ videoId, alt = "YouTube video", width = 600 }) => (
       <img
         src={`https://img.youtube.com/vi/${videoId}/0.jpg`}
         alt={alt}
-        width={width}
+        className="w-75"
       />
     </a>
   </div>

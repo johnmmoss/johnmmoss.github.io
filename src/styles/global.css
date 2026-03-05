@@ -1,3 +1,7 @@
+body {
+  font-size: 1.0625rem;
+}
+
 main {
   margin: 12px;
 }
@@ -12,9 +16,9 @@ h1 {
 
 h2 {
   color: #525252;
-  font-size: 1.7m;
-  margin-top: 30px;
-  margin-bottom: 15px;
+  font-size: 1.7em;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
 }
 
 h3 {
@@ -28,7 +32,7 @@ h3 {
 h3.home {
   margin-top: 0;
   font-size: 1.2em;
-  margin-bottom: 20px;
+  margin-bottom: 1rem;
   letter-spacing: 2px;
   padding-bottom: 7px;
   color: #525252;
@@ -42,7 +46,7 @@ h4 {
 }
 
 p {
-  line-height: 1.7;
+  line-height: 1.8;
 }
 a {
   text-decoration: none;
