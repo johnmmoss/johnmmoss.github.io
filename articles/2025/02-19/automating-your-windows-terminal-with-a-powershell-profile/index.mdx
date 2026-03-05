@@ -3,19 +3,15 @@ title: "Automating Your Windows Terminal With A PowerShell Profile"
 date: "2025-02-19"
 slug: "automating-your-windows-terminal-with-a-powershell-profile"
 description: "Automate tasks in Windows Terminal using PowerShell scripts: set variables, create functions, and run tools efficiently"
-tags: []
+tags: ["PowerShell", "Windows Terminal"]
 ---
 
 I’m a regular user of the Windows Terminal to speed up the manual tasks that are required during the software development process. I’ve found PowerShell’s `$PROFILE` script very useful for adding automation code which is loaded every time a PowerShell session starts. These are some of the things I’ve added to my own `$PROFILE` over the years:
 
-* Setting custom variables
-    
-* Using helper functions
-    
-* Automating common tasks
-    
-* Running custom tools
-    
+- Setting custom variables
+- Using helper functions
+- Automating common tasks
+- Running custom tools
 
 ## Creating The $PROFILE Script
 
@@ -114,20 +110,20 @@ In this first example a docker container is built, a helm chart deployed and the
 ```powershell
 function saturn-inttest() {
 
-	write-host "***** Running integration tests *****" -foreground green 
-	write-host "Building docker container" -foreground green 
+	write-host "***** Running integration tests *****" -foreground green
+	write-host "Building docker container" -foreground green
 	docker build -f docker/linux/debian/buster-slim/amd64/Dockerfile -t saturn/local:int --build-arg nuget_pat="$acmePat" .
 
-	write-host "Installing helm package" -foreground green 
+	write-host "Installing helm package" -foreground green
 	helm install saturn-int-test helm/charts/saturn-acme-api -f helm.local/values.yml
 
-	write-host "Running dotnet test" -foreground green 
+	write-host "Running dotnet test" -foreground green
 	dotnet test src/Acme.Api.IntegrationTests/Acme.Api.IntegrationTests.csproj --settings src/Acme.Api.IntegrationTests/helm.local.runsettings.xml
 
-	write-host "Uninstalling helm package" -foreground green 
+	write-host "Uninstalling helm package" -foreground green
 	helm uninstall saturn-int-test
 
-	write-host "***** Integration Tests complete ******" -foreground green   
+	write-host "***** Integration Tests complete ******" -foreground green
 }
 ```
 
@@ -146,24 +142,24 @@ function AcmeManager-Test() {
 	$psIntegrationApi = start-process -FilePath dotnet -ArgumentList " run --project D:\Code\AcmeCorporate\saturn-ms-integration-api5\src\Api\Api.csproj" -passthru -WindowStyle Minimized
 	$psShimApi = start-process -FilePath dotnet -ArgumentList " run --project D:\Code\AcmeCorporate\saturn-ms-integration-api5\src\AcmeManagerApi.Shim\AcmeManagerApi.Shim.csproj" -passthru -WindowStyle Minimized
 
-	write-host "Pinging http://localhost:5003" -foreground DarkGray 
+	write-host "Pinging http://localhost:5003" -foreground DarkGray
 	$response = Invoke-WebRequest  "http://localhost:5003/ping"
 
 	While ($response.StatusCode -ne "200")
 	{
 		start-sleep 1
-		write-host "Pinging http://localhost:5003" -foreground DarkGray 
+		write-host "Pinging http://localhost:5003" -foreground DarkGray
 		$response = Invoke-WebRequest  "http://localhost:5003/ping"
 		write-host "Trying ping again... "
-	} 
+	}
 
-	write-host "Running Postman Tests..." -foreground DarkGray 
-	newman run D:\Code\AcmeCorporate\IntegrationTesting\Postman\AcmeManagerApi.Shim-Test.v2.json -e D:\Code\AcmeCorporate\IntegrationTesting\Postman\AcmeManagerApi.Shim-Test.Environment.v2.json 
+	write-host "Running Postman Tests..." -foreground DarkGray
+	newman run D:\Code\AcmeCorporate\IntegrationTesting\Postman\AcmeManagerApi.Shim-Test.v2.json -e D:\Code\AcmeCorporate\IntegrationTesting\Postman\AcmeManagerApi.Shim-Test.Environment.v2.json
 
-	write-host "Stopping Apis..." -foreground DarkGray 
-    $psIntegrationApi | Stop-Process 
-	$psShimApi | Stop-Process 
-	
+	write-host "Stopping Apis..." -foreground DarkGray
+    $psIntegrationApi | Stop-Process
+	$psShimApi | Stop-Process
+
 	write-host "AcmeManagerShim Api Integration Tests complete!" -foreground green
 }
 ```
@@ -203,7 +199,7 @@ function Nbs-BookAppointment1($time) {
 	$dateOfBirth = "25/12/1948"
 	$postcode = "IP11 2GN"
 	$bookDate = "28/08/2023"
-	
+
 	Nbs-BookApointment $nhsNumber $dateOfBirth $postcode $bookDate $time
 }
 
@@ -213,7 +209,7 @@ function Nbs-BookAppointment2($time) {
 	 $dateOfBirth = "30/06/1948"
 	 $postcode = "IP11 2GN"
 	 $bookDate = "28/08/2023"
-	
+
 	 Nbs-BookApointment $nhsNumber $dateOfBirth $postcode $bookDate $time
 }
 ```
