@@ -15,18 +15,19 @@ const CategoriesPage = ({
 
   return (
     <Layout pageTitle="Categories">
-      <div className="container-min">
-        {sortedTags.map((tag) => (
-          <li key={tag.fieldValue} className="mt-1 mb-1">
+      <div className="container-min mt-5 ps-1">
+        <div className="d-flex flex-wrap justify-content-center gap-3">
+          {sortedTags.map((tag) => (
             <Link
+              key={tag.fieldValue}
               to={`/tags/${kebabCase(tag.fieldValue)}/`}
-              className="btn btn-secondary btn-sm"
+              className="btn btn-secondary"
             >
               {tag.fieldValue}
-              <span className="badge badge-secondary">{tag.totalCount}</span>
+              <span className="badge bg-secondary ms-2">{tag.totalCount}</span>
             </Link>
-          </li>
-        ))}
+          ))}
+        </div>
       </div>
     </Layout>
   );

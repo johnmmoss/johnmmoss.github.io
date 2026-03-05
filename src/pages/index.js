@@ -1,4 +1,5 @@
 import * as React from "react";
+import kebabCase from "lodash/kebabCase";
 import Layout from "../components/layout";
 import { graphql, Link } from "gatsby";
 import { StaticImage } from "gatsby-plugin-image";
@@ -45,17 +46,20 @@ const IndexPage = ({ data }) => {
         </div>
         <div className="col-12 col-md-3 col-lg-2 mb-3">
           <h3 className="home">Topics</h3>
-          <ul>
-            <li>
-              <Link to="/tags/asp-net-core">ASP.NET Core</Link>
-            </li>
-            <li>
-              <Link to="/tags/c">C#</Link>
-            </li>
-            <li>
-              <Link to="/tags/bootstrap">Bootstrap</Link>
-            </li>
-          </ul>
+          <div className="d-flex flex-column align-items-start gap-2 ps-2">
+            {data.tags.group
+              .sort((a, b) => b.totalCount - a.totalCount)
+              .slice(0, 8)
+              .map((tag) => (
+                <Link
+                  key={tag.fieldValue}
+                  to={`/tags/${kebabCase(tag.fieldValue)}/`}
+                  className="btn btn-outline-secondary btn-no-hover"
+                >
+                  {tag.fieldValue} ({tag.totalCount})
+                </Link>
+              ))}
+          </div>
         </div>
       </div>
     </Layout>
@@ -74,6 +78,12 @@ export const query = graphql`
         }
         id
         excerpt(pruneLength: 260)
+      }
+    }
+    tags: allMdx {
+      group(field: frontmatter___tags) {
+        fieldValue
+        totalCount
       }
     }
   }

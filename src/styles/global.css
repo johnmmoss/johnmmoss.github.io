@@ -2,6 +2,12 @@ body {
   font-size: 1.0625rem;
 }
 
+.btn-no-hover:hover {
+  background-color: transparent !important;
+  color: inherit !important;
+  border-color: inherit !important;
+}
+
 main {
   margin: 12px;
 }
