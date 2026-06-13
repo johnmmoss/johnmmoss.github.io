@@ -8,7 +8,7 @@ import kebabCase from "lodash/kebabCase";
 
 const BlogPost = ({ data }) => {
   return (
-    <Layout pageTitle={`${data.mdx.frontmatter.title}`}>
+    <Layout pageTitle={`${data.mdx.frontmatter.title}`} description={data.mdx.frontmatter.description}>
       <div className="container-min ">
         <div className="d-flex flex-column justify-content-center align-items-center">
           <div className="mt-2 fst-italic fs-5 mb-3">
@@ -42,6 +42,7 @@ export const query = graphql`
         title
         date(formatString: "MMMM D, YYYY")
         tags
+        description
       }
       body
     }

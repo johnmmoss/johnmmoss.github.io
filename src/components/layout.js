@@ -3,21 +3,25 @@ import { Link, useStaticQuery, graphql } from "gatsby";
 import { Nav, Navbar, Container } from "react-bootstrap";
 import { Helmet } from "react-helmet";
 
-const Layout = ({ pageTitle, children }) => {
+const Layout = ({ pageTitle, description, children }) => {
   const data = useStaticQuery(graphql`
     query {
       site {
         siteMetadata {
           title
+          description
         }
       }
     }
   `);
 
+  const metaDescription = description || data.site.siteMetadata.description;
+
   return (
     <>
       <Helmet>
         <title>{pageTitle} - unstacked.net</title>
+        <meta name="description" content={metaDescription} />
       </Helmet>
       <div className="site">
         <header>
