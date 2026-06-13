@@ -1,7 +1,7 @@
 module.exports = {
   trailingSlash: "never",
   siteMetadata: {
-    siteUrl: `http://www.unstacked.net`,
+    siteUrl: `https://www.unstacked.net`,
     title: `unstacked.net`,
     description: `unstacked.net is a blog about software development, with a focus on ASP.NET Core, C#, and web development.`,
   },
@@ -31,5 +31,12 @@ module.exports = {
       },
     },
     "gatsby-plugin-react-helmet",
+    {
+      resolve: "gatsby-plugin-sitemap",
+      options: {
+        output: "/",
+        entryLimit: 45000
+      }
+    }
   ],
 };
